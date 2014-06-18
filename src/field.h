@@ -28,7 +28,7 @@ struct field_t
 
 	field_t() : n(N), m(M) {}
 
-	void operator*=(vec_t::num s)
+	void operator*=(float_t s)
 	{
 		for (size_t i = 0; i < n; i++)
 		{
@@ -56,4 +56,4 @@ template<size_t N, size_t M>
 using vec_field_t = field_t < vec_t, N, M > ;
 
 template<size_t N, size_t M>
-using scalar_field_t = field_t < vec_t::num, N, M > ;
+using scalar_field_t = field_t < float_t, N, M > ;
