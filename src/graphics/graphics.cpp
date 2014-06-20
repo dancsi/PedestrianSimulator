@@ -1,6 +1,7 @@
 #include "graphics.h"
 #include "util.h"
 #include "vec.h"
+#include "world.h"
 
 #define NANOVG_GLEW
 #define GLEW_STATIC
@@ -17,8 +18,7 @@ namespace graphics
 	GLFWwindow* window;
 	int window_width, window_height;
 	int fb_width, fb_height;
-	int width, height;
-	const int canvas_scale = 100;
+	float one_pixel = 1.0;
 
 	NVGcontext* vg = NULL;
 	GPUtimer gpu_timer;
@@ -40,7 +40,8 @@ namespace graphics
 
 		glfwSetErrorCallback([&](int error, const char* desc) {LOG("GLFW error %d: %s\n", error, desc); });
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-		window = glfwCreateWindow(800, 600, "PedestrianSimulator", NULL, NULL); if (!window) {
+		int height = glfwGetVideoMode(glfwGetPrimaryMonitor())->height*0.6, width = height*double(world::width)/double(world::height);
+		window = glfwCreateWindow(width, height, "PedestrianSimulator", NULL, NULL); if (!window) {
 			glfwTerminate();
 			exit(-1);
 		}
@@ -87,16 +88,17 @@ namespace graphics
 		glfwGetCursorPos(window, &mouse_pos.x, &mouse_pos.y);
 		glfwGetWindowSize(window, &window_width, &window_height);
 		glfwGetFramebufferSize(window, &fb_width, &fb_height);
-		width = canvas_scale * double(window_width) / double(window_height); height = canvas_scale;
-		glViewport(0, 0, width, height);
+		glViewport(0, 0, fb_width, fb_height);
 		glClearColor(0.3, 0.3, 0.32, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		nvgBeginFrame(vg, width, height, /*double(fb_width)/double(window_width)*/1.0);
-		
+
+		nvgBeginFrame(vg, fb_width, fb_height, 1);
+		draw_world_scale();
 	}
 
 	void end_frame()
 	{
+		draw_ui_scale();
 		renderGraph(vg, 5, 5, &fps_graph);
 		renderGraph(vg, 5 + 200 + 5, 5, &cpu_graph);
 		if (gpu_timer.supported)
@@ -122,6 +124,21 @@ namespace graphics
 	{
 		nvgDeleteGL3(vg);
 		glfwTerminate();
+	}
+
+	void draw_ui_scale()
+	{
+		nvgResetTransform(vg);
+		one_pixel = 1.0;
+	}
+
+	void draw_world_scale()
+	{
+		nvgResetTransform(vg);
+		nvgTranslate(vg, fb_width / 2, fb_height / 2);
+		nvgScale(vg, double(fb_width) / world::width, double(fb_height) / world::height);
+		nvgTranslate(vg, -world::width / 2, -world::height / 2);
+		one_pixel = double(world::width) / fb_width;
 	}
 
 }

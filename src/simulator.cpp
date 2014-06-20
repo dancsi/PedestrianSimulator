@@ -2,9 +2,10 @@
 #include <cstdio>
 #include <random>
 
-#include "field.h"
-#include "graphics/graphics.h"
+#include "world.h"
+#include "graphics.h"
 #include "util.h"
+#include "config.h"
 
 using namespace std;
 
@@ -13,24 +14,38 @@ vec_field_t<512, 512> vf;
 int main(int argc, char** argv)
 {
 	util::init();
+	config::read("config.ini");
+	world::init();
 	graphics::init();
 
 	mt19937 eng(42);
-	uniform_int_distribution<int> dist(0, graphics::height);
-	auto rnd = bind(dist, eng);
+	uniform_int_distribution<int> dist_w(0, world::width), dist_h(0, world::height);
+	auto rnd_w = bind(dist_w, eng);
+	auto rnd_h = bind(dist_h, eng);
+
+	bool b = false;
 
 	while (!graphics::should_exit())
 	{
 		graphics::begin_frame();
-
-		for (int i = 0; i < 4000; i++)
+		/*
+		for (int i = 0; i < 40; i++)
 		{
 			nvgBeginPath(graphics::vg);
-			nvgStrokeColor(graphics::vg, nvgRGBA(0, 255, 0, 255));
-			nvgMoveTo(graphics::vg,rnd(), rnd());
-			nvgLineTo(graphics::vg, rnd(), rnd());
+			nvgStrokeWidth(graphics::vg, 1.0/graphics::scale);
+			nvgStrokeColor(graphics::vg, nvgRGBA(0, 255, 0, 255)); 
+			nvgMoveTo(graphics::vg, rnd_w(), rnd_h());
+			nvgLineTo(graphics::vg, rnd_w(), rnd_h());
 			nvgStroke(graphics::vg);
 		}
+		*/
+
+		nvgBeginPath(graphics::vg);
+		nvgStrokeWidth(graphics::vg, graphics::one_pixel );
+		nvgStrokeColor(graphics::vg, nvgRGBA(0, 255, 0, 255));
+		nvgMoveTo(graphics::vg, 5, 5);
+		nvgLineTo(graphics::vg, 95, 95);
+		nvgStroke(graphics::vg);
 
 		graphics::end_frame();
 	}

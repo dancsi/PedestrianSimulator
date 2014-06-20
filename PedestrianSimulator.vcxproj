@@ -152,14 +152,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\graphics\graphics.cpp" />
     <ClCompile Include="src\graphics\nanovg.c" />
     <ClCompile Include="src\graphics\perf.c" />
     <ClCompile Include="src\graphics\stb_image.c" />
     <ClCompile Include="src\simulator.cpp" />
     <ClCompile Include="src\util.cpp" />
+    <ClCompile Include="src\world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\config.h" />
     <ClInclude Include="src\graphics\fontstash.h" />
     <ClInclude Include="src\graphics\graphics.h" />
     <ClInclude Include="src\graphics\nanovg.h" />
@@ -169,6 +172,7 @@
     <ClInclude Include="src\util.h" />
     <ClInclude Include="src\vec.h" />
     <ClInclude Include="src\field.h" />
+    <ClInclude Include="src\world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

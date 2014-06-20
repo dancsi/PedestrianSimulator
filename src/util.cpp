@@ -9,6 +9,6 @@ namespace util
 		char buf[30];
 		sprintf(buf, "logs\\%u.log", current_time);
 		//freopen(buf, "w", stderr);
-		freopen("log.txt", "w", stderr);
+		//freopen("log.txt", "w", stderr);
 	}
 }
