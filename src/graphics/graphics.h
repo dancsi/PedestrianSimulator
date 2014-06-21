@@ -14,4 +14,6 @@ namespace graphics
 	void destroy();
 	void draw_ui_scale();
 	void draw_world_scale();
+	template<typename T>
+	void draw(T& drawable);
 }

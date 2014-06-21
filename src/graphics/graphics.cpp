@@ -2,6 +2,7 @@
 #include "util.h"
 #include "vec.h"
 #include "world.h"
+#include "field.h"
 
 #define NANOVG_GLEW
 #define GLEW_STATIC
@@ -141,6 +142,22 @@ namespace graphics
 		one_pixel = double(world::width) / fb_width;
 	}
 
+	template<>
+	void draw<vec_field_t>(vec_field_t& vf)
+	{
+		vf.foreach_element([&](size_t i, size_t j, vec_t& v){
+			if (i == 0 && j == 0)
+			{
+				vec_t pos = vf.get_coordinates(i, j), to = pos + v;
+				nvgBeginPath(vg);
+				nvgMoveTo(vg, pos.x, pos.y);
+				nvgLineTo(vg, to.x, to.y);
+				nvgStrokeColor(vg, nvgRGB(0, 255, 0));
+				nvgStrokeWidth(vg, one_pixel);
+				nvgStroke(vg);
+			}
+		});
+	}
 }
 
 

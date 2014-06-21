@@ -1,14 +1,31 @@
 #pragma once
 
 #include "vec.h"
+#include "util.h"
 
 #include <functional>
+#include <random>
 
-template <typename T, size_t N, size_t M>
+template <typename T>
 struct field_t
 {
-	const size_t n, m;
-	T f[N][M];
+	size_t n, m;
+	vec_t size;
+	float spacing;
+	T **f;
+	field_t(vec_t size, float spacing) : size(size), spacing(spacing)
+	{
+		n = size.y / spacing;
+		m = size.x / spacing;
+		T* tmp = new T[n*m];
+		f = new T*[n];
+		for (int i = 0; i < n; i++) f[i] = tmp + i*m;
+	}
+
+	vec_t get_coordinates(size_t i, size_t j)
+	{
+		return spacing*vec_t{ j, i };
+	}
 
 	void foreach_row(std::function<void(size_t i, T*& row)> fun)
 	{
@@ -26,7 +43,7 @@ struct field_t
 		}
 	}
 
-	field_t() : n(N), m(M) {}
+	field_t() : n(0), m(0) {}
 
 	void operator*=(float_t s)
 	{
@@ -52,8 +69,28 @@ struct field_t
 
 };
 
-template<size_t N, size_t M>
-using vec_field_t = field_t < vec_t, N, M > ;
+//template<typename T>
+struct vec_field_t : field_t<vec_t>
+{
+	vec_field_t(vec_t size, float spacing) :field_t(size, spacing)
+	{
+		/*
+		std::mt19937 eng(42);
+		auto rnd = bind(std::normal_distribution<float>(2 * 3.1415926535897932384626433832795 / 3, 0.2), eng);
+		*/
 
-template<size_t N, size_t M>
-using scalar_field_t = field_t < float_t, N, M > ;
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < m; j++)
+			{
+				float angle = /*rnd()*/0;
+				f[i][j] = { cos(angle), sin(angle) };
+			}
+		}
+	}
+	vec_field_t(){}
+};
+
+//using vec_field_t = field_t < vec_t > ;
+
+using scalar_field_t = field_t < float_t> ;

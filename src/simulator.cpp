@@ -9,8 +9,6 @@
 
 using namespace std;
 
-vec_field_t<512, 512> vf;
-
 int main(int argc, char** argv)
 {
 	util::init();
@@ -40,12 +38,7 @@ int main(int argc, char** argv)
 		}
 		*/
 
-		nvgBeginPath(graphics::vg);
-		nvgStrokeWidth(graphics::vg, graphics::one_pixel );
-		nvgStrokeColor(graphics::vg, nvgRGBA(0, 255, 0, 255));
-		nvgMoveTo(graphics::vg, 5, 5);
-		nvgLineTo(graphics::vg, 95, 95);
-		nvgStroke(graphics::vg);
+		graphics::draw(world::vf);
 
 		graphics::end_frame();
 	}
