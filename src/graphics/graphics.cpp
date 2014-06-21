@@ -24,7 +24,7 @@ namespace graphics
 	NVGcontext* vg = NULL;
 	GPUtimer gpu_timer;
 	PerfGraph fps_graph, cpu_graph, gpu_graph;
-	double prev_time=0, cpu_time=0, render_start_time, delta_time;
+	double prev_time = 0, cpu_time = 0, render_start_time, delta_time;
 
 	vecd_t mouse_pos;
 
@@ -39,20 +39,32 @@ namespace graphics
 		initGraph(&cpu_graph, GRAPH_RENDER_MS, "CPU Time");
 		initGraph(&gpu_graph, GRAPH_RENDER_MS, "GPU Time");
 
-		glfwSetErrorCallback([&](int error, const char* desc) {LOG("GLFW error %d: %s\n", error, desc); });
+		glfwSetErrorCallback([](int error, const char* desc) {LOG("GLFW error %d: %s\n", error, desc); });
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-		int height = glfwGetVideoMode(glfwGetPrimaryMonitor())->height*0.6, width = height*double(world::width)/double(world::height);
+		int height = glfwGetVideoMode(glfwGetPrimaryMonitor())->height*0.6, width = height*double(world::width) / double(world::height);
 		window = glfwCreateWindow(width, height, "PedestrianSimulator", NULL, NULL); if (!window) {
 			glfwTerminate();
 			exit(-1);
 		}
-		glfwSetKeyCallback(window, [&](GLFWwindow* window, int key, int scancode, int action, int mods)
+		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			NVG_NOTUSED(scancode);
 			NVG_NOTUSED(mods);
 			if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 				glfwSetWindowShouldClose(window, GL_TRUE);
 		});
+
+		glfwSetMouseButtonCallback(window, [](GLFWwindow* wind, int button, int action, int mods){
+			if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_1)
+			{
+				vecd_t pos;
+				glfwGetCursorPos(wind, &pos.x, &pos.y);
+				vec_t world_pos = screen2world({pos.x, pos.y});
+				//LOG("click at screen (%.2lf, %.2lf), world (%.2f, %.2f)", pos.x, pos.y, world_pos.x, world_pos.y);
+				world::add_objective(world_pos);
+			}
+		});
+
 		glfwMakeContextCurrent(window);
 		glewExperimental = GL_TRUE;
 		if (glewInit() != GLEW_OK) {
@@ -104,7 +116,7 @@ namespace graphics
 		renderGraph(vg, 5 + 200 + 5, 5, &cpu_graph);
 		if (gpu_timer.supported)
 			renderGraph(vg, 5 + 200 + 5 + 200 + 5, 5, &gpu_graph);
-
+		draw_world_scale();
 		nvgEndFrame(vg);
 
 		cpu_time = glfwGetTime() - render_start_time;
@@ -143,21 +155,38 @@ namespace graphics
 	}
 
 	template<>
-	void draw<vec_field_t>(vec_field_t& vf)
+	void draw<vec_field_t>(vec_field_t& vf, NVGcolor& color)
 	{
 		vf.foreach_element([&](size_t i, size_t j, vec_t& v){
-			if (i == 0 && j == 0)
-			{
-				vec_t pos = vf.get_coordinates(i, j), to = pos + v;
-				nvgBeginPath(vg);
-				nvgMoveTo(vg, pos.x, pos.y);
-				nvgLineTo(vg, to.x, to.y);
-				nvgStrokeColor(vg, nvgRGB(0, 255, 0));
-				nvgStrokeWidth(vg, one_pixel);
-				nvgStroke(vg);
-			}
+			vec_t pos = vf.get_coordinates(i, j), to = pos + v;
+			nvgBeginPath(vg);
+			nvgMoveTo(vg, pos.x, pos.y);
+			nvgLineTo(vg, to.x, to.y);
+			nvgStrokeColor(vg, color);
+			nvgStrokeWidth(vg, one_pixel);
+			nvgStroke(vg);
 		});
 	}
+
+	vec_t world2screen(vec_t v)
+	{
+		float transform[6];
+		nvgCurrentTransform(vg, transform);
+		vec_t ret;
+		nvgTransformPoint(&ret.x, &ret.y, transform, v.x, v.y);
+		return ret;
+	}
+
+	vec_t screen2world(vec_t v)
+	{
+		float transform[6], itransform[6];
+		nvgCurrentTransform(vg, transform);
+		nvgTransformInverse(itransform, transform);
+		vec_t ret;
+		nvgTransformPoint(&ret.x, &ret.y, itransform, v.x, v.y);
+		return ret;
+	}
+
 }
 
 

@@ -33,6 +33,20 @@ struct _vec_t
 		x *= s; y *= s;
 		return *this;
 	}
+	const float_t dist(const _vec_t v)
+	{
+		return sqrt((x-v.x)*(x-v.x)+(y-v.y)*(y-v.y));
+	}
+	const float_t length()
+	{
+		return sqrt(x*x + y*y);
+	}
+	_vec_t normalize()
+	{
+		float_t l = length();
+		x /= l; y /= l;
+		return {x, y};
+	}
 	friend _vec_t operator*(const float_t s, _vec_t v)
 	{
 		return{ v.x*s, v.y*s };

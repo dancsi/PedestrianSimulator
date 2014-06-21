@@ -11,4 +11,5 @@ namespace util
 		//freopen(buf, "w", stderr);
 		//freopen("log.txt", "w", stderr);
 	}
+
 }

@@ -3,47 +3,45 @@
 #include "vec.h"
 #include "util.h"
 
+
 #include <functional>
 #include <random>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <vector>
+
+using namespace util;
 
 template <typename T>
-struct field_t
+struct field_t : matrix_t<T>
 {
-	size_t n, m;
 	vec_t size;
 	float spacing;
-	T **f;
-	field_t(vec_t size, float spacing) : size(size), spacing(spacing)
-	{
-		n = size.y / spacing;
-		m = size.x / spacing;
-		T* tmp = new T[n*m];
-		f = new T*[n];
-		for (int i = 0; i < n; i++) f[i] = tmp + i*m;
-	}
+	field_t(vec_t size, float spacing) : size(size), spacing(spacing), matrix_t(size.y/spacing, size.x/spacing)
+	{ }
 
 	vec_t get_coordinates(size_t i, size_t j)
 	{
 		return spacing*vec_t{ j, i };
 	}
 
-	void foreach_row(std::function<void(size_t i, T*& row)> fun)
+	vec_t get_coordinates(pair_t ij)
 	{
-		for (size_t i = 0; i < n; i++) fun(i, f[i]);
+		return spacing*vec_t{ ij.j, ij.i };
 	}
 
-	void foreach_element(std::function<void(size_t i, size_t j, vec_t& v)> fun)
+	pair_t get_ij(vec_t v)
 	{
-		for (size_t i = 0; i < n; i++)
-		{
-			for (size_t j = 0; j < m; j++)
-			{
-				fun(i, j, f[i][j]);
-			}
-		}
+		return{ size_t(v.y / spacing), size_t(v.x / spacing) };
+	}
+	std::vector<pair_t> get_ijv(vec_t v)
+	{
+		pair_t ij = get_ij(v);
+		size_t i = ij.i, j = ij.j;
+		return{ { i, j }, { i + 1, j }, { i, j + 1 }, {i+1, j+1} };
 	}
 
-	field_t() : n(0), m(0) {}
+	field_t()  {}
 
 	void operator*=(float_t s)
 	{
@@ -66,7 +64,12 @@ struct field_t
 			}
 		}
 	}
-
+	/*
+	void clear()
+	{
+		memset((void*) (*f), 0, n*m*sizeof(T));
+	}
+	*/
 };
 
 //template<typename T>
@@ -74,16 +77,14 @@ struct vec_field_t : field_t<vec_t>
 {
 	vec_field_t(vec_t size, float spacing) :field_t(size, spacing)
 	{
-		/*
 		std::mt19937 eng(42);
-		auto rnd = bind(std::normal_distribution<float>(2 * 3.1415926535897932384626433832795 / 3, 0.2), eng);
-		*/
+		auto rnd = bind(std::normal_distribution<float>(0, 0.3), eng);
 
 		for (int i = 0; i < n; i++)
 		{
 			for (int j = 0; j < m; j++)
 			{
-				float angle = /*rnd()*/0;
+				float angle = M_PI_4+rnd();
 				f[i][j] = { cos(angle), sin(angle) };
 			}
 		}
@@ -91,6 +92,10 @@ struct vec_field_t : field_t<vec_t>
 	vec_field_t(){}
 };
 
-//using vec_field_t = field_t < vec_t > ;
+struct scalar_field_t : field_t < float_t >
+{
+	scalar_field_t(vec_t size, float spacing) :field_t(size, spacing) {	}
+	scalar_field_t() {}
+};
 
-using scalar_field_t = field_t < float_t> ;
+//using vec_field_t = field_t < vec_t > ;
