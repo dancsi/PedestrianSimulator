@@ -159,6 +159,12 @@ namespace graphics
 	{
 		vf.foreach_element([&](size_t i, size_t j, vec_t& v){
 			vec_t pos = vf.get_coordinates(i, j), to = pos + v;
+
+			nvgBeginPath(vg);
+			nvgCircle(vg, pos.x, pos.y, .2);
+			nvgFillColor(vg, color);
+			nvgFill(vg);
+
 			nvgBeginPath(vg);
 			nvgMoveTo(vg, pos.x, pos.y);
 			nvgLineTo(vg, to.x, to.y);
