@@ -22,7 +22,7 @@ namespace util
 	{
 		T* tmp = new T[n*m];
 		T** f = new T*[n];
-		for (int i = 0; i < n; i++) f[i] = tmp + i*m;
+		for (size_t i = 0; i < n; i++) f[i] = tmp + i*m;
 		return f;
 	}
 

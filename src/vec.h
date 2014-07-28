@@ -51,6 +51,14 @@ struct _vec_t
 	{
 		return{ v.x*s, v.y*s };
 	}
+	float_t cross(_vec_t v)
+	{
+		return x*v.y - y*v.x;
+	}
+	float_t dot(_vec_t v)
+	{
+		return x*v.x + y*v.y;
+	}
 };
 
 typedef _vec_t<float>  vec_t;

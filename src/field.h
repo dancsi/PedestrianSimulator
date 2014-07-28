@@ -80,9 +80,9 @@ struct vec_field_t : field_t<vec_t>
 		std::mt19937 eng(42);
 		auto rnd = bind(std::normal_distribution<float>(0, 0.3), eng);
 
-		for (int i = 0; i < n; i++)
+		for (size_t i = 0; i < n; i++)
 		{
-			for (int j = 0; j < m; j++)
+			for (size_t j = 0; j < m; j++)
 			{
 				float angle = M_PI_4+rnd();
 				f[i][j] = { cos(angle), sin(angle) };
