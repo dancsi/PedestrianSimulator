@@ -1,6 +1,7 @@
 #pragma once
 
 #include "field.h"
+#include "geometry.h"
 
 #include <vector>
 

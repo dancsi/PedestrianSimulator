@@ -1,6 +1,10 @@
 #pragma once
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/register/point.hpp>
+
 #include <cmath>
 #include <cfloat>
+
 
 template<typename float_t>
 struct _vec_t
@@ -64,3 +68,5 @@ struct _vec_t
 typedef _vec_t<float>  vec_t;
 typedef _vec_t<double>  vecd_t;
 
+BOOST_GEOMETRY_REGISTER_POINT_2D(vec_t, float, boost::geometry::cs::cartesian, x, y);
+BOOST_GEOMETRY_REGISTER_POINT_2D(vecd_t, double, boost::geometry::cs::cartesian, x, y);
