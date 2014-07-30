@@ -16,4 +16,6 @@ namespace world
 	void setup_neighbours();
 	void draw();
 	void add_objective(vec_t obj);
+	void place_people_randomly(size_t n_people);
+	void step(float dt);
 }

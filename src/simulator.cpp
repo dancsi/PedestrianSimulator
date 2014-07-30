@@ -19,6 +19,7 @@ int main(int argc, char** argv)
 	while (!graphics::should_exit())
 	{
 		graphics::begin_frame();
+		world::step(graphics::delta_time);
 		world::draw();
 		graphics::end_frame();
 	}

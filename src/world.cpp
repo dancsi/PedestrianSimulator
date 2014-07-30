@@ -3,6 +3,7 @@
 #include "util.h"
 #include "vec.h"
 #include "graphics.h"
+#include "pedestrian.h"
 
 #include <limits>
 #include <set>
@@ -20,6 +21,7 @@ namespace world
 	matrix_t<bool> visited;
 	matrix_t<vec_t> prev_pos;
 	matrix_t<vector<pair_t>> neighbours;
+	vector<ped_t> people;
 
 	void init()
 	{
@@ -31,6 +33,14 @@ namespace world
 		n = dist_field.n, m = dist_field.m;
 		visited = util::matrix_t<bool>(n, m);
 		setup_neighbours();
+		if (config::get<int>("people", "random_placement"))
+		{
+			place_people_randomly(config::get<int>("people", "count"));
+		}
+		else
+		{
+			throw "not implemented";
+		}
 	}
 
 	void setup_neighbours()
@@ -61,6 +71,15 @@ namespace world
 		}
 	}
 
+	void place_people_randomly(size_t n_people)
+	{
+		for (int i = 0; i < n_people; i++)
+		{
+			ped_t p = {  util::rand_range(width * 0.1, width*.9), util::rand_range(world::height * 0.1, world::height*.9) , util::rand_range(0, 2*M_PI) };
+			people.push_back(p);
+		}
+	}
+
 	void draw()
 	{
 		graphics::draw(dist_field_grad);
@@ -69,6 +88,13 @@ namespace world
 			nvgBeginPath(graphics::vg);
 			nvgCircle(graphics::vg, obj.x, obj.y, 0.5);
 			nvgFillColor(graphics::vg, nvgRGBAf(1, 0, 0, .5));
+			nvgFill(graphics::vg);
+		}
+		for (ped_t ped : world::people)
+		{
+			nvgBeginPath(graphics::vg);
+			nvgCircle(graphics::vg, ped.x, ped.y, 0.5);
+			nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
 			nvgFill(graphics::vg);
 		}
 	}
@@ -158,4 +184,8 @@ namespace world
 		objectives.push_back(obj);
 	}
 
+	void step(float dt)
+	{
+
+	}
 }

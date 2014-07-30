@@ -9,6 +9,7 @@ namespace graphics
 {
 	extern NVGcontext* vg;
 	extern float one_pixel;
+	extern double delta_time;
 
 	void init();
 	bool should_exit();

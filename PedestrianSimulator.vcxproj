@@ -170,6 +170,7 @@
     <ClInclude Include="src\graphics\nanovg_gl.h" />
     <ClInclude Include="src\graphics\nanovg_gl_utils.h" />
     <ClInclude Include="src\graphics\stb_truetype.h" />
+    <ClInclude Include="src\pedestrian.h" />
     <ClInclude Include="src\util.h" />
     <ClInclude Include="src\vec.h" />
     <ClInclude Include="src\field.h" />

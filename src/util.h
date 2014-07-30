@@ -16,6 +16,7 @@ struct pair_t
 namespace util
 {
 	void init();
+	float rand_range(float low, float high);
 
 	template<typename T>
 	T** alloc_matrix(size_t n, size_t m)
