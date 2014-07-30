@@ -138,7 +138,7 @@ namespace world
 			{
 				dist_field[p] = newdist;
 				prev_pos[p] = start; point_grad_vec_to_prev_pos(p);
-				//q.insert(p);
+				q.insert(p);
 			}
 		}
 		while (!q.empty())
