@@ -30,4 +30,11 @@ namespace config
 		GetPrivateProfileString(section.c_str(), key.c_str(), "0.0", buf, 100, fname.c_str());
 		return std::stof(buf);
 	}
+	template<>
+	std::string get<std::string>(std::string section, std::string key)
+	{
+		char buf[100];
+		GetPrivateProfileString(section.c_str(), key.c_str(), "", buf, 100, fname.c_str());
+		return std::string(buf);
+	}
 }

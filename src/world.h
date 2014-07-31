@@ -13,6 +13,7 @@ namespace world
 	extern std::vector<vec_t> objectives;
 
 	void init();
+	void read_walls(std::string fname);
 	void setup_neighbours();
 	void draw();
 	void add_objective(vec_t obj);

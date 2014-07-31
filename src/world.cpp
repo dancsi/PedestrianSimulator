@@ -22,6 +22,7 @@ namespace world
 	matrix_t<vec_t> prev_pos;
 	matrix_t<vector<pair_t>> neighbours;
 	vector<ped_t> people, inactive_people;
+	vector<line_t> walls;
 
 	void init()
 	{
@@ -32,6 +33,8 @@ namespace world
 		dist_field_grad = vec_field_t({ width, height }, spacing); dist_field_grad.clear();
 		n = dist_field.n, m = dist_field.m;
 		visited = util::matrix_t<bool>(n, m);
+		std::string walls_file = config::get<std::string>("data", "walls");
+		read_walls(walls_file);
 		setup_neighbours();
 		if (config::get<int>("people", "random_placement"))
 		{
@@ -43,30 +46,52 @@ namespace world
 		}
 	}
 
+	void read_walls(std::string fname)
+	{
+		FILE* fwalls = fopen(fname.c_str(), "r");
+		line_t wall;
+		while (fscanf(fwalls, "%f%f%f%f", &wall.p.x, &wall.p.y, &wall.q.x, &wall.q.y) == 4)
+		{
+			walls.push_back(wall);
+		}
+		fclose(fwalls);
+	}
+
 	void setup_neighbours()
 	{
 		prev_pos = matrix_t<vec_t>(n, m);
 		prev_pos.foreach_element([&](size_t i, size_t j, vec_t& v) {v = dist_field.get_coordinates(i, j); });
 		neighbours = matrix_t<vector<pair_t>>(n, m);
+		auto point_on_wall = matrix_t<bool>(n, m);
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < m; j++)
+			{
+				vec_t point_pos = dist_field_grad.get_coordinates(i, j);
+				point_on_wall.f[i][j] = !all_of(walls.begin(), walls.end(), [&point_pos](line_t wall) {return !boost::geometry::covered_by(point_pos, wall); });
+			}
+		}
+
 		for (int i = 0; i < n; i++)
 		{
 			//pair_t lpoint{ i, 0 }, rpoint{i, m-1};
-			neighbours.f[i][0].push_back({i, 1});
-			neighbours.f[i][m-1].push_back({ i, m-2 });
+			neighbours.f[i][0].push_back({ i, 1 });
+			neighbours.f[i][m - 1].push_back({ i, m - 2 });
 		}
 		for (int j = 0; j < m; j++)
 		{
-			neighbours.f[0][j].push_back({1, j});
-			neighbours.f[n-1][j].push_back({ n-2, j });
+			neighbours.f[0][j].push_back({ 1, j });
+			neighbours.f[n - 1][j].push_back({ n - 2, j });
 		}
 		for (int i = 1; i < n - 1; i++)
 		{
 			for (int j = 1; j < m - 1; j++)
 			{
-				neighbours.f[i][j].push_back({ i - 1, j });
-				neighbours.f[i][j].push_back({ i, j + 1 });
-				neighbours.f[i][j].push_back({ i + 1, j });
-				neighbours.f[i][j].push_back({ i, j - 1 });
+				if (point_on_wall.f[i][j]) continue;
+				if (!point_on_wall.f[i - 1][j]) neighbours.f[i][j].push_back({ i - 1, j });
+				if (!point_on_wall.f[i][j + 1]) neighbours.f[i][j].push_back({ i, j + 1 });
+				if (!point_on_wall.f[i + 1][j]) neighbours.f[i][j].push_back({ i + 1, j });
+				if (!point_on_wall.f[i][j - 1]) neighbours.f[i][j].push_back({ i, j - 1 });
 			}
 		}
 	}
@@ -75,7 +100,7 @@ namespace world
 	{
 		for (int i = 0; i < n_people; i++)
 		{
-			ped_t p = {  util::rand_range(width * 0.1, width*.9), util::rand_range(world::height * 0.1, world::height*.9) , util::rand_range(0, 2*M_PI) };
+			ped_t p = { util::rand_range(width * 0.1, width*.9), util::rand_range(world::height * 0.1, world::height*.9), util::rand_range(0, 2 * M_PI) };
 			people.push_back(p);
 		}
 	}
@@ -97,6 +122,15 @@ namespace world
 			nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
 			nvgFill(graphics::vg);
 		}
+		for (line_t& wall : walls)
+		{
+			nvgBeginPath(graphics::vg);
+			nvgMoveTo(graphics::vg, wall.p.x, wall.p.y);
+			nvgLineTo(graphics::vg, wall.q.x, wall.q.y);
+			nvgStrokeColor(graphics::vg, nvgRGBAf(0, 0, 1, .5));
+			nvgStrokeWidth(graphics::vg, 3 * graphics::one_pixel);
+			nvgStroke(graphics::vg);
+		}
 	}
 
 	struct astar_cmp
@@ -107,7 +141,7 @@ namespace world
 		{
 			return start.dist(dist_field.get_coordinates(x));
 		}
-		const bool operator()(pair_t a, pair_t b) 
+		const bool operator()(pair_t a, pair_t b)
 		{
 			return dist_field[a] + euclidean_dist(a) < dist_field[b] + euclidean_dist(b);
 		}
@@ -117,7 +151,8 @@ namespace world
 
 	bool visible(vec_t a, vec_t b)
 	{
-		return true;
+		line_t sight_ray{ a, b };
+		return all_of(walls.begin(), walls.end(), [&sight_ray](line_t& wall) {return !intersects(sight_ray, wall); });
 	}
 
 	void point_grad_vec_to_prev_pos(pair_t p)
@@ -195,7 +230,7 @@ namespace world
 			}
 			if (ped.x > world::width)
 			{
-				ped.x = world::width-0.1;
+				ped.x = world::width - 0.1;
 				ped.v.x = 0;
 			}
 			if (ped.y < 0)
@@ -205,15 +240,10 @@ namespace world
 			}
 			if (ped.y > world::height)
 			{
-				ped.y = world::height-0.1;
+				ped.y = world::height - 0.1;
 				ped.v.y = 0;
 			}
 		}
-	}
-
-	void remove_inactive()
-	{
-
 	}
 
 	void step(float dt)
@@ -223,28 +253,24 @@ namespace world
 			ped.acc = dist_field_grad.interpolate(ped);
 			for (vec_t obj : objectives)
 			{
-				vec_t r = obj-ped;
+				vec_t r = obj - ped;
 				float r_length = r.length();
 				if (r_length < dist_field_grad.spacing / 2)
 				{
 					ped.arrived_at_destination = true;
 				}
-				ped.acc += (10. / r_length)*exp(-sqr(r_length-1.0*dist_field_grad.spacing))*r;
+				ped.acc += (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
 			}
-			/*
-			float acc_intensity = ped.acc.length();
-			ped.acc.normalize();
-			ped.acc *= atan(acc_intensity);
-			*/
 		}
-		
+
 
 		for (ped_t& ped : people)
 		{
 			ped.v.saturate(3);
-			ped += ped.v*dt+0.5*ped.acc*dt*dt;
+			ped += ped.v*dt + 0.5*ped.acc*dt*dt;
 			ped.v += ped.acc*dt;
 		}
 		enforce_boundaries();
 	}
+
 }
