@@ -17,8 +17,8 @@ struct field_t : matrix_t<T>
 {
 	vec_t size;
 	float spacing;
-	field_t(vec_t size, float spacing) : size(size), spacing(spacing), matrix_t(size.y/spacing, size.x/spacing)
-	{ }
+	field_t(vec_t size, float spacing) : size(size), spacing(spacing), matrix_t(size.y/spacing+1, size.x/spacing+1)
+	{	}
 
 	vec_t get_coordinates(size_t i, size_t j)
 	{

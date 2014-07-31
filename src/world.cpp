@@ -184,8 +184,56 @@ namespace world
 		objectives.push_back(obj);
 	}
 
+	float W(float dist)
+	{
+		return exp(-dist*dist);
+	}
+
+	void enforce_boundaries()
+	{
+		for (ped_t& ped : people)
+		{
+			if (ped.x < 0)
+			{
+				ped.x = 0.1;
+				ped.v.x = 0;
+			}
+			if (ped.x > world::width)
+			{
+				ped.x = world::width-0.1;
+				ped.v.x = 0;
+			}
+			if (ped.y < 0)
+			{
+				ped.y = 0.1;
+				ped.v.y = 0;
+			}
+			if (ped.y > world::height)
+			{
+				ped.y = world::height-0.1;
+				ped.v.y = 0;
+			}
+		}
+	}
+
 	void step(float dt)
 	{
+		for (ped_t& ped : people)
+		{
+			ped.acc = { 0, 0 }; //premestiti celu ovu interpolaciju u vec field interpolate
+			auto&& cell_corners = dist_field_grad.get_ijv(ped);
+			for (pair_t& ij : cell_corners)
+			{
+				vec_t r = ((vec_t) ped - dist_field_grad.get_coordinates(ij));
+				ped.acc += W(r.length())*dist_field_grad[ij];
+			}
+		}
 
+		for (ped_t& ped : people)
+		{
+			ped += ped.v*dt+0.5*ped.acc*dt*dt;
+			ped.v += ped.acc*dt;
+		}
+		enforce_boundaries();
 	}
 }
