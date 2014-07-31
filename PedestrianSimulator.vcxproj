@@ -81,6 +81,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)\include;$(ProjectDir)\src;$(ProjectDir)\src\graphics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>false</SDLCheck>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>

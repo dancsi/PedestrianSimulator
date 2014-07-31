@@ -2,7 +2,8 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 
-#include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <cfloat>
 
 
@@ -48,8 +49,21 @@ struct _vec_t
 	_vec_t normalize()
 	{
 		float_t l = length();
-		x /= l; y /= l;
+		if (fabs(l)!=0)
+		{
+			x /= l; y /= l;
+		}
 		return {x, y};
+	}
+	_vec_t saturate(float bound)
+	{
+		float_t l = length();
+		if (fabs(l) != 0)
+		{
+			x /= l, y /= l;
+			*this *= atan(l) / M_PI_2 * bound;
+		}
+		return{ x, y };
 	}
 	friend _vec_t operator*(const float_t s, _vec_t v)
 	{

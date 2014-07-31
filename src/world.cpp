@@ -21,7 +21,7 @@ namespace world
 	matrix_t<bool> visited;
 	matrix_t<vec_t> prev_pos;
 	matrix_t<vector<pair_t>> neighbours;
-	vector<ped_t> people;
+	vector<ped_t> people, inactive_people;
 
 	void init()
 	{
@@ -184,11 +184,6 @@ namespace world
 		objectives.push_back(obj);
 	}
 
-	float W(float dist)
-	{
-		return exp(-dist*dist);
-	}
-
 	void enforce_boundaries()
 	{
 		for (ped_t& ped : people)
@@ -216,21 +211,37 @@ namespace world
 		}
 	}
 
+	void remove_inactive()
+	{
+
+	}
+
 	void step(float dt)
 	{
 		for (ped_t& ped : people)
 		{
-			ped.acc = { 0, 0 }; //premestiti celu ovu interpolaciju u vec field interpolate
-			auto&& cell_corners = dist_field_grad.get_ijv(ped);
-			for (pair_t& ij : cell_corners)
+			ped.acc = dist_field_grad.interpolate(ped);
+			for (vec_t obj : objectives)
 			{
-				vec_t r = ((vec_t) ped - dist_field_grad.get_coordinates(ij));
-				ped.acc += W(r.length())*dist_field_grad[ij];
+				vec_t r = obj-ped;
+				float r_length = r.length();
+				if (r_length < dist_field_grad.spacing / 2)
+				{
+					ped.arrived_at_destination = true;
+				}
+				ped.acc += (10. / r_length)*exp(-sqr(r_length-1.0*dist_field_grad.spacing))*r;
 			}
+			/*
+			float acc_intensity = ped.acc.length();
+			ped.acc.normalize();
+			ped.acc *= atan(acc_intensity);
+			*/
 		}
+		
 
 		for (ped_t& ped : people)
 		{
+			ped.v.saturate(3);
 			ped += ped.v*dt+0.5*ped.acc*dt*dt;
 			ped.v += ped.acc*dt;
 		}

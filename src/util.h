@@ -17,6 +17,7 @@ namespace util
 {
 	void init();
 	float rand_range(float low, float high);
+	inline float sqr(float x) { return x*x; }
 
 	template<typename T>
 	T** alloc_matrix(size_t n, size_t m)

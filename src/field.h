@@ -64,12 +64,21 @@ struct field_t : matrix_t<T>
 			}
 		}
 	}
-	/*
-	void clear()
+	float W(float dist)
 	{
-		memset((void*) (*f), 0, n*m*sizeof(T));
+		return exp(-dist*dist);
 	}
-	*/
+	T interpolate(vec_t pos)
+	{
+		T res = {0, 0};
+		auto&& cell_corners = get_ijv(pos);
+		for (pair_t& ij : cell_corners)
+		{
+			vec_t r = (pos - get_coordinates(ij));
+			res += W(r.length())*f[ij.i][ij.j];
+		}
+		return res;
+	}
 };
 
 //template<typename T>
