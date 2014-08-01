@@ -33,6 +33,10 @@ struct _vec_t
 	{
 		return{ x*s, y*s };
 	}
+	const _vec_t operator/(const float_t s) const
+	{
+		return{ x/s, y/s };
+	}
 	const _vec_t operator*=(const float_t s)
 	{
 		x *= s; y *= s;
@@ -46,6 +50,10 @@ struct _vec_t
 	{
 		return sqrt(x*x + y*y);
 	}
+	const float_t length_sq()
+	{
+		return x*x + y*y;
+	}
 	_vec_t normalize()
 	{
 		float_t l = length();
@@ -54,6 +62,11 @@ struct _vec_t
 			x /= l; y /= l;
 		}
 		return {x, y};
+	}
+	_vec_t normalized()
+	{
+		_vec_t ret = *this;
+		return ret.normalize();
 	}
 	_vec_t saturate(float bound)
 	{

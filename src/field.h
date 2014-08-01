@@ -77,7 +77,7 @@ struct field_t : matrix_t<T>
 			vec_t r = (pos - get_coordinates(ij));
 			res += W(r.length())*f[ij.i][ij.j];
 		}
-		return res;
+		return res.normalize();
 	}
 };
 

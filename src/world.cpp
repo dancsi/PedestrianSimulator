@@ -42,7 +42,8 @@ namespace world
 		}
 		else
 		{
-			people.push_back(ped_t{70, 35, 0});
+			people.push_back(ped_t{20, 20, 0});
+			people.push_back(ped_t{ 21, 20, 0 });
 		}
 	}
 
@@ -173,7 +174,7 @@ namespace world
 			newdist = to_pos.dist(prev_pos[via]);
 			if (visible(prev_pos[via], astar_cmp::start))
 			{
-				 newdist+= prev_pos[via].dist(astar_cmp::start); //ALI STA AKO SE NE VIDI prev_pos[via] iz start-a ?????  Trebalo naci cvor koji je najblizi prev_pos[via]
+				 newdist+= prev_pos[via].dist(astar_cmp::start);
 				 possible_prev_pos = prev_pos[via];
 			}
 			else
@@ -233,7 +234,9 @@ namespace world
 			}
 		}
 	}
-
+	/*
+	Ukoliko bi zeleli da cilj bude neki poligon, umesto samo tacke, postavicemo za ciljeve sve tacke koje su na "ivici", u unutrasnjosti poligona.
+	*/
 	void add_objective(vec_t obj)
 	{
 		astar(obj);
@@ -271,7 +274,10 @@ namespace world
 	{
 		for (ped_t& ped : people)
 		{
-			ped.acc = dist_field_grad.interpolate(ped);
+			ped.v *= 0.9;
+			vec_t preferred_dir = dist_field_grad.interpolate(ped);
+			ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
+			//LOG("initial acc: (%.2f, %.2f)", ped.acc.x, ped.acc.y);
 			for (vec_t obj : objectives)
 			{
 				vec_t r = obj - ped;
@@ -281,13 +287,27 @@ namespace world
 					ped.arrived_at_destination = true;
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
+				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
+				if (increment.length() > 10)
+				{
+					__debugbreak();
+				}
+			}
+			for (ped_t& p2 : people)
+			{
+				if (ped != p2 && !p2.arrived_at_destination)
+				{
+					vec_t r = (p2 - ped); 
+					ped.acc += -50*exp(-2.0*r.length_sq())*r.normalized();
+					vec_t incr = -50 * exp(-10.0*r.length_sq())*r.normalized();
+					//LOG("acc: (%f, %f), v: (%.2f, %.2f)",incr.x, incr.y, ped.v.x, ped.v.y);
+				}
 			}
 		}
 
-
 		for (ped_t& ped : people)
 		{
-			ped.v.saturate(3);
+			//ped.v.saturate(3);
 			vec_t newpos = ped + ped.v*dt + 0.5*ped.acc*dt*dt;
 			//ped += ped.v*dt + 0.5*ped.acc*dt*dt;
 			for (line_t wall : walls)
