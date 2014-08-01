@@ -3,6 +3,7 @@
 #include "vec.h"
 #include "world.h"
 #include "field.h"
+#include "geometry.h"
 
 #define NANOVG_GLEW
 #define GLEW_STATIC
@@ -55,13 +56,16 @@ namespace graphics
 		});
 
 		glfwSetMouseButtonCallback(window, [](GLFWwindow* wind, int button, int action, int mods){
-			if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_1)
+			if (action == GLFW_RELEASE)
 			{
 				vecd_t pos;
 				glfwGetCursorPos(wind, &pos.x, &pos.y);
-				vec_t world_pos = screen2world({pos.x, pos.y});
-				//LOG("click at screen (%.2lf, %.2lf), world (%.2f, %.2f)", pos.x, pos.y, world_pos.x, world_pos.y);
-				world::add_objective(world_pos);
+				vec_t world_pos = screen2world({ pos.x, pos.y });
+				if (button == GLFW_MOUSE_BUTTON_1)
+				{
+					world::add_objective(world_pos);
+				}
+				LOG("click at screen (%.2lf, %.2lf), world (%.2f, %.2f)", pos.x, pos.y, world_pos.x, world_pos.y);
 			}
 		});
 
@@ -172,6 +176,15 @@ namespace graphics
 			nvgStrokeWidth(vg, one_pixel);
 			nvgStroke(vg);
 		});
+	}
+
+	template<>
+	void draw<circle_t>(circle_t& circle, NVGcolor& color)
+	{
+		nvgBeginPath(graphics::vg);
+		nvgCircle(graphics::vg, circle.x, circle.y, circle.r);
+		nvgFillColor(graphics::vg, color);
+		nvgFill(graphics::vg);
 	}
 
 	vec_t world2screen(vec_t v)

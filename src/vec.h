@@ -77,6 +77,10 @@ struct _vec_t
 	{
 		return x*v.x + y*v.y;
 	}
+	_vec_t perp()
+	{
+		return{ -y, x };
+	}
 };
 
 typedef _vec_t<float>  vec_t;

@@ -16,6 +16,8 @@ int main(int argc, char** argv)
 	world::init();
 	graphics::init();
 
+	world::add_objective({ 38, 15 });
+
 	while (!graphics::should_exit())
 	{
 		graphics::begin_frame();

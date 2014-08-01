@@ -10,6 +10,10 @@
 struct pair_t
 {
 	size_t i, j;
+	bool operator==(pair_t p)
+	{
+		return i == p.i&&j == p.j;
+	}
 };
 
 

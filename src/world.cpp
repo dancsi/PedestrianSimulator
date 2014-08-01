@@ -42,7 +42,7 @@ namespace world
 		}
 		else
 		{
-			throw "not implemented";
+			people.push_back(ped_t{70, 35, 0});
 		}
 	}
 
@@ -68,7 +68,7 @@ namespace world
 			for (int j = 0; j < m; j++)
 			{
 				vec_t point_pos = dist_field_grad.get_coordinates(i, j);
-				point_on_wall.f[i][j] = !all_of(walls.begin(), walls.end(), [&point_pos](line_t wall) {return !boost::geometry::covered_by(point_pos, wall); });
+				point_on_wall.f[i][j] = !all_of(walls.begin(), walls.end(), [&point_pos](line_t wall) {return !covered_by(point_pos, wall); });
 			}
 		}
 
@@ -147,7 +147,7 @@ namespace world
 		}
 	};
 	vec_t astar_cmp::start;
-	std::set < pair_t, astar_cmp > q;
+	std::multiset < pair_t, astar_cmp > q;
 
 	bool visible(vec_t a, vec_t b)
 	{
@@ -155,7 +155,7 @@ namespace world
 		return all_of(walls.begin(), walls.end(), [&sight_ray](line_t& wall) {return !intersects(sight_ray, wall); });
 	}
 
-	void point_grad_vec_to_prev_pos(pair_t p)
+	void point_grad_vec_to_prev_pos(pair_t p) //usmerava
 	{
 		vec_t pos = dist_field.get_coordinates(p);
 		vec_t dir = (prev_pos[p] - pos);
@@ -170,8 +170,28 @@ namespace world
 		vec_t possible_prev_pos;
 		if (visible(prev_pos[via], to_pos))
 		{
-			newdist = to_pos.dist(prev_pos[via]) + prev_pos[via].dist(astar_cmp::start); //ALI STA AKO SE NE VIDI prev_pos[via] iz start-a ?????  Trebalo naci cvor koji je najblizi prev_pos[via]
-			possible_prev_pos = prev_pos[via];
+			newdist = to_pos.dist(prev_pos[via]);
+			if (visible(prev_pos[via], astar_cmp::start))
+			{
+				 newdist+= prev_pos[via].dist(astar_cmp::start); //ALI STA AKO SE NE VIDI prev_pos[via] iz start-a ?????  Trebalo naci cvor koji je najblizi prev_pos[via]
+				 possible_prev_pos = prev_pos[via];
+			}
+			else
+			{
+				auto closest_points = dist_field.get_ijv(prev_pos[via]);
+				float min_dist = numeric_limits<float>::infinity();
+				for (pair_t p : closest_points)
+				{
+					if (dist_field[p] < min_dist)
+					{
+						min_dist = dist_field[p];
+						possible_prev_pos = dist_field.get_coordinates(p);
+					}
+				}
+				newdist += min_dist;
+			}
+
+			
 		}
 		else
 		{
@@ -204,7 +224,8 @@ namespace world
 		}
 		while (!q.empty())
 		{
-			pair_t t = *q.begin(); q.erase(q.begin()); visited[t] = true;
+			pair_t t = *q.begin();
+			q.erase(q.begin()); visited[t] = true;
 			for (pair_t p : neighbours[t])
 			{
 				if (visited[p]) continue;
@@ -267,7 +288,32 @@ namespace world
 		for (ped_t& ped : people)
 		{
 			ped.v.saturate(3);
-			ped += ped.v*dt + 0.5*ped.acc*dt*dt;
+			vec_t newpos = ped + ped.v*dt + 0.5*ped.acc*dt*dt;
+			//ped += ped.v*dt + 0.5*ped.acc*dt*dt;
+			for (line_t wall : walls)
+			{
+				vector<vec_t> collision_points; line_t movement_line{ ped, newpos };
+				intersection(wall, movement_line, collision_points);
+				if (!collision_points.empty())
+				{
+					vec_t norm = wall.q - wall.p; norm = norm.perp(); norm.normalize();
+					if (norm.dot(ped.v) < 0)
+					{
+						vec_t v_proj = norm.dot(ped.v)*norm;
+						ped.v -= v_proj; ped.v += 0.5*norm;
+					}
+					//LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), line: (%.2f, %.2f) -> (%.2f, %.2f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, ped.x, ped.y, newpos.x, newpos.y);
+					if (norm.dot(ped.acc) < 0)
+					{
+						vec_t acc_proj = norm * norm.dot(ped.acc);
+						ped.acc -= acc_proj;
+					}
+
+					if (!covered_by((vec_t)ped, wall))
+						newpos = collision_points[0];
+				}
+			}
+			ped = newpos;
 			ped.v += ped.acc*dt;
 		}
 		enforce_boundaries();
