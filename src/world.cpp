@@ -15,6 +15,7 @@ using namespace util;
 namespace world
 {
 	int width, height, n, m;
+	float timestep;
 	scalar_field_t dist_field;
 	vec_field_t dist_field_grad;
 	vector<vec_t> objectives;
@@ -29,6 +30,7 @@ namespace world
 		width = config::get<int>("world", "width");
 		height = config::get<int>("world", "height");
 		float spacing = config::get<double>("world", "spacing");
+		timestep = config::get<double>("simulation", "timestep");
 		dist_field = scalar_field_t({ width, height }, spacing); dist_field.set(std::numeric_limits<float>::infinity());
 		dist_field_grad = vec_field_t({ width, height }, spacing); dist_field_grad.clear();
 		n = dist_field.n, m = dist_field.m;
@@ -36,14 +38,17 @@ namespace world
 		std::string walls_file = config::get<std::string>("data", "walls");
 		read_walls(walls_file);
 		setup_neighbours();
+		vec_t spawnbox_corner = { config::get<double>("spawnbox", "x"), config::get<double>("spawnbox", "y") };
+		vec_t spawnbox_dims = { config::get<double>("spawnbox", "width"), config::get<double>("spawnbox", "height") };
 		if (config::get<int>("people", "random_placement"))
 		{
-			place_people_randomly(config::get<int>("people", "count"));
+			place_people_randomly(config::get<int>("people", "count"), box_t{ spawnbox_corner, spawnbox_corner + spawnbox_dims });
 		}
 		else
 		{
-			people.push_back(ped_t{20, 20, 0});
-			people.push_back(ped_t{ 21, 20, 0 });
+			people.push_back({ 30.5, 45.5, 0 });
+			people[0].v = { -1, -1 };
+
 		}
 	}
 
@@ -97,11 +102,11 @@ namespace world
 		}
 	}
 
-	void place_people_randomly(size_t n_people)
+	void place_people_randomly(size_t n_people, box_t& box)
 	{
 		for (int i = 0; i < n_people; i++)
 		{
-			ped_t p = { util::rand_range(width * 0.1, width*.9), util::rand_range(world::height * 0.1, world::height*.9), util::rand_range(0, 2 * M_PI) };
+			ped_t p = { util::rand_range(box.min_corner().x, box.max_corner().x), util::rand_range(box.min_corner().y, box.max_corner().y), util::rand_range(0, 2 * M_PI) };
 			people.push_back(p);
 		}
 	}
@@ -174,8 +179,8 @@ namespace world
 			newdist = to_pos.dist(prev_pos[via]);
 			if (visible(prev_pos[via], astar_cmp::start))
 			{
-				 newdist+= prev_pos[via].dist(astar_cmp::start);
-				 possible_prev_pos = prev_pos[via];
+				newdist += prev_pos[via].dist(astar_cmp::start);
+				possible_prev_pos = prev_pos[via];
 			}
 			else
 			{
@@ -192,7 +197,7 @@ namespace world
 				newdist += min_dist;
 			}
 
-			
+
 		}
 		else
 		{
@@ -274,9 +279,11 @@ namespace world
 	{
 		for (ped_t& ped : people)
 		{
-			ped.v *= 0.9;
+			ped.acc = { 0, 0 };
 			vec_t preferred_dir = dist_field_grad.interpolate(ped);
-			ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
+			if (preferred_dir.length()>0)
+				ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
+			else ped.v *= 0.95;
 			//LOG("initial acc: (%.2f, %.2f)", ped.acc.x, ped.acc.y);
 			for (vec_t obj : objectives)
 			{
@@ -288,17 +295,13 @@ namespace world
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
 				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
-				if (increment.length() > 10)
-				{
-					__debugbreak();
-				}
 			}
 			for (ped_t& p2 : people)
 			{
 				if (ped != p2 && !p2.arrived_at_destination)
 				{
-					vec_t r = (p2 - ped); 
-					ped.acc += -50*exp(-2.0*r.length_sq())*r.normalized();
+					vec_t r = (p2 - ped);
+					ped.acc += -50 * exp(-2.0*r.length_sq())*r.normalized();
 					vec_t incr = -50 * exp(-10.0*r.length_sq())*r.normalized();
 					//LOG("acc: (%f, %f), v: (%.2f, %.2f)",incr.x, incr.y, ped.v.x, ped.v.y);
 				}
@@ -309,34 +312,53 @@ namespace world
 		{
 			//ped.v.saturate(3);
 			vec_t newpos = ped + ped.v*dt + 0.5*ped.acc*dt*dt;
+			ped.v += ped.acc*dt;
 			//ped += ped.v*dt + 0.5*ped.acc*dt*dt;
 			for (line_t wall : walls)
 			{
 				vector<vec_t> collision_points; line_t movement_line{ ped, newpos };
-				intersection(wall, movement_line, collision_points);
-				if (!collision_points.empty())
+				vec_t movement_vec = movement_line.q - movement_line.p;
+				if (intersects(movement_line, wall))
 				{
-					vec_t norm = wall.q - wall.p; norm = norm.perp(); norm.normalize();
-					if (norm.dot(ped.v) < 0)
+					LOG("wall: %.2f %.2f %.2f %.2f", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
+					LOG("movement line: %f %f %f %f", movement_line.p.x, movement_line.p.y, movement_line.q.x, movement_line.q.y);
+					intersection(wall, movement_line, collision_points);
+					assert(!collision_points.empty());
+					vec_t wall_dir = wall.q - wall.p; 
+					vec_t norm = wall_dir.perp(); norm.normalize();
+					if (wall_dir.cross(ped.v) > 0) 
+						norm *= -1;
+
+					if (norm.dot(ped.v) <= 0)
 					{
 						vec_t v_proj = norm.dot(ped.v)*norm;
 						ped.v -= v_proj; ped.v += 0.5*norm;
 					}
-					//LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), line: (%.2f, %.2f) -> (%.2f, %.2f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, ped.x, ped.y, newpos.x, newpos.y);
 					if (norm.dot(ped.acc) < 0)
 					{
 						vec_t acc_proj = norm * norm.dot(ped.acc);
 						ped.acc -= acc_proj;
 					}
 
-					if (!covered_by((vec_t)ped, wall))
-						newpos = collision_points[0];
+					if (!covered_by((vec_t) ped, wall))
+						newpos = collision_points[0]+0.01*norm;
+
+					LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), line: (%f, %f) -> (%f, %f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, ped.x, ped.y, newpos.x, newpos.y);
 				}
 			}
 			ped = newpos;
-			ped.v += ped.acc*dt;
 		}
 		enforce_boundaries();
+	}
+
+	void destroy()
+	{
+		FILE* walls_f = fopen("new_walls.dat", "w");
+		for (line_t wall : walls)
+		{
+			fprintf(walls_f, "%f %f %f %f\n", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
+		}
+		fclose(walls_f);
 	}
 
 }

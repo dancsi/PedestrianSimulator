@@ -6,8 +6,8 @@ static int id_counter = 0;
 
 namespace ped_parameters
 {
-	const static float preferred_velocity = 1.5;
-	const static float maximum_velocity = 3;
+	const static float preferred_velocity = 3;
+	const static float maximum_velocity = 5;
 	const static float relaxation_time = 0.5;
 }
 

@@ -25,7 +25,7 @@ namespace graphics
 	NVGcontext* vg = NULL;
 	GPUtimer gpu_timer;
 	PerfGraph fps_graph, cpu_graph, gpu_graph;
-	double prev_time = 0, cpu_time = 0, render_start_time, delta_time;
+	double prev_time = 0, cpu_time = 0, render_start_time, delta_time = 1./60.0;
 
 	vecd_t mouse_pos;
 
@@ -56,16 +56,30 @@ namespace graphics
 		});
 
 		glfwSetMouseButtonCallback(window, [](GLFWwindow* wind, int button, int action, int mods){
+			static vec_t start_pos;
+			vecd_t pos;
+			glfwGetCursorPos(wind, &pos.x, &pos.y);
+			vec_t world_pos = screen2world({ pos.x, pos.y });
 			if (action == GLFW_RELEASE)
 			{
-				vecd_t pos;
-				glfwGetCursorPos(wind, &pos.x, &pos.y);
-				vec_t world_pos = screen2world({ pos.x, pos.y });
+				
 				if (button == GLFW_MOUSE_BUTTON_1)
 				{
 					world::add_objective(world_pos);
 				}
-				LOG("click at screen (%.2lf, %.2lf), world (%.2f, %.2f)", pos.x, pos.y, world_pos.x, world_pos.y);
+				else if (button == GLFW_MOUSE_BUTTON_2)
+				{
+					LOG("%5.2f %5.2f %5.2f %5.2f", start_pos.x, start_pos.y, world_pos.x, world_pos.y);
+					world::walls.push_back({start_pos, world_pos});
+				}
+				//LOG("click at screen (%.2lf, %.2lf), world (%.2f, %.2f)", pos.x, pos.y, world_pos.x, world_pos.y);
+			}
+			else if (action == GLFW_PRESS)
+			{
+				if (button == GLFW_MOUSE_BUTTON_2)
+				{
+					start_pos = world_pos;
+				}
 			}
 		});
 

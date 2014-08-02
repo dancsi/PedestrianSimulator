@@ -4,6 +4,7 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/segment.hpp> 
+#include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/register/segment.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
@@ -21,6 +22,8 @@ struct circle_t :vec_t
 	float r;
 	circle_t(std::initializer_list<float> l) : vec_t({ *(l.begin()), *(l.begin() + 1) }), r(*(l.begin() + 2)) {}
 };
+
+typedef boost::geometry::model::box<vec_t> box_t;
 
 using boost::geometry::intersects;
 using boost::geometry::intersection;

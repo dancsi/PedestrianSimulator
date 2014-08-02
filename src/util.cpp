@@ -1,4 +1,5 @@
 #include "util.h"
+#include "config.h"
 
 #include <random>
 
@@ -12,6 +13,7 @@ namespace util
 		time(&current_time);
 		char buf[30];
 		sprintf(buf, "logs\\%u.log", current_time);
+		random_engine = std::mt19937(config::get<int>("simulation", "seed"));
 		//freopen(buf, "w", stderr);
 		//freopen("log.txt", "w", stderr);
 	}
