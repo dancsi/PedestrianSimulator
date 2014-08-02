@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\config.cpp" />
+    <ClCompile Include="src\geometry.cpp" />
     <ClCompile Include="src\graphics\graphics.cpp" />
     <ClCompile Include="src\graphics\nanovg.c" />
     <ClCompile Include="src\graphics\perf.c" />

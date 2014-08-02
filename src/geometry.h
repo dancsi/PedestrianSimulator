@@ -2,6 +2,7 @@
 
 #include "vec.h"
 
+#include <algorithm>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/segment.hpp> 
 #include <boost/geometry/geometries/box.hpp>
@@ -9,13 +10,14 @@
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/within.hpp>
-
 struct line_t
 {
 	vec_t p, q;
 };
 
 BOOST_GEOMETRY_REGISTER_SEGMENT(line_t, vec_t, p, q);
+
+bool project(vec_t point, line_t line, vec_t& proj);
 
 struct circle_t :vec_t
 {

@@ -314,8 +314,17 @@ namespace world
 				{
 					vec_t r = (p2 - ped);
 					ped.acc += -50 * exp(-2.0*r.length_sq())*r.normalized();
-					vec_t incr = -50 * exp(-10.0*r.length_sq())*r.normalized();
+					//vec_t incr = -50 * exp(-10.0*r.length_sq())*r.normalized();
 					//LOG("acc: (%f, %f), v: (%.2f, %.2f)",incr.x, incr.y, ped.v.x, ped.v.y);
+				}
+			}
+			for (line_t& wall : walls)
+			{
+				vec_t proj;
+				if (project(ped, wall, proj))
+				{
+					vec_t r = (proj - ped);
+					ped.acc += -50 * exp(-2.0*r.length_sq())*r.normalized();
 				}
 			}
 		}
@@ -365,12 +374,14 @@ namespace world
 
 	void destroy()
 	{
+		/*
 		FILE* walls_f = fopen("new_walls.dat", "w");
 		for (line_t wall : walls)
 		{
 			fprintf(walls_f, "%f %f %f %f\n", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
 		}
 		fclose(walls_f);
+		*/
 	}
 
 }
