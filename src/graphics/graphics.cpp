@@ -70,9 +70,10 @@ namespace graphics
 				else if (button == GLFW_MOUSE_BUTTON_2)
 				{
 					LOG("%5.2f %5.2f %5.2f %5.2f", start_pos.x, start_pos.y, world_pos.x, world_pos.y);
-					world::walls.push_back({start_pos, world_pos});
+					//world::walls.push_back({start_pos, world_pos});
 				}
-				//LOG("click at screen (%.2lf, %.2lf), world (%.2f, %.2f)", pos.x, pos.y, world_pos.x, world_pos.y);
+				else if (button==GLFW_MOUSE_BUTTON_3)
+					 LOG("click at screen (%.2lf, %.2lf), world (%.2f, %.2f)", pos.x, pos.y, world_pos.x, world_pos.y);
 			}
 			else if (action == GLFW_PRESS)
 			{

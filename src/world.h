@@ -16,10 +16,11 @@ namespace world
 
 	void init();
 	void read_walls(std::string fname);
-	void setup_neighbours();
+	void setup_neighbours(); 
 	void draw();
 	void add_objective(vec_t obj);
 	void place_people_randomly(size_t n_people, box_t& where);
 	void step(float dt);
 	void destroy();
+	bool visible(vec_t a, vec_t b);
 }

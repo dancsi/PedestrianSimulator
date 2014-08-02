@@ -17,7 +17,7 @@ struct field_t : matrix_t<T>
 {
 	vec_t size;
 	float spacing;
-	field_t(vec_t size, float spacing) : size(size), spacing(spacing), matrix_t(size.y/spacing+1, size.x/spacing+1)
+	field_t(vec_t size, float spacing) : size(size), spacing(spacing), matrix_t(size.y / spacing + 1, size.x / spacing + 1)
 	{	}
 
 	vec_t get_coordinates(size_t i, size_t j)
@@ -68,14 +68,17 @@ struct field_t : matrix_t<T>
 	{
 		return exp(-dist*dist);
 	}
-	T interpolate(vec_t pos)
+	T interpolate(vec_t pos, std::function<bool(vec_t, vec_t)> can_include_point)
 	{
 		T res = {0, 0};
 		auto&& cell_corners = get_ijv(pos);
 		for (pair_t& ij : cell_corners)
 		{
-			vec_t r = (pos - get_coordinates(ij));
-			res += W(r.length())*f[ij.i][ij.j];
+			if (can_include_point(get_coordinates(ij), pos))
+			{
+				vec_t r = (pos - get_coordinates(ij));
+				res += W(r.length())*f[ij.i][ij.j];
+			}	
 		}
 		return res.normalize();
 	}

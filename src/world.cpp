@@ -94,10 +94,22 @@ namespace world
 			for (int j = 1; j < m - 1; j++)
 			{
 				if (point_on_wall.f[i][j]) continue;
-				if (!point_on_wall.f[i - 1][j]) neighbours.f[i][j].push_back({ i - 1, j });
-				if (!point_on_wall.f[i][j + 1]) neighbours.f[i][j].push_back({ i, j + 1 });
-				if (!point_on_wall.f[i + 1][j]) neighbours.f[i][j].push_back({ i + 1, j });
-				if (!point_on_wall.f[i][j - 1]) neighbours.f[i][j].push_back({ i, j - 1 });
+				if (!point_on_wall.f[i - 1][j] && visible(dist_field.get_coordinates(i, j), dist_field.get_coordinates(i - 1, j))) 
+				{
+					neighbours.f[i][j].push_back({ i - 1, j });
+				}
+				if (!point_on_wall.f[i][j + 1] && visible(dist_field.get_coordinates(i, j), dist_field.get_coordinates(i, j + 1))) 
+				{
+					neighbours.f[i][j].push_back({ i, j + 1 }); 
+				}
+				if (!point_on_wall.f[i + 1][j] && visible(dist_field.get_coordinates(i, j), dist_field.get_coordinates(i + 1, j))) 
+				{ 
+					neighbours.f[i][j].push_back({ i + 1, j }); 
+				}
+				if (!point_on_wall.f[i][j - 1] && visible(dist_field.get_coordinates(i, j), dist_field.get_coordinates(i, j - 1))) 
+				{ 
+					neighbours.f[i][j].push_back({ i, j - 1 }); 
+				}
 			}
 		}
 	}
@@ -280,7 +292,7 @@ namespace world
 		for (ped_t& ped : people)
 		{
 			ped.acc = { 0, 0 };
-			vec_t preferred_dir = dist_field_grad.interpolate(ped);
+			vec_t preferred_dir = dist_field_grad.interpolate(ped, visible);
 			if (preferred_dir.length()>0)
 				ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
 			else ped.v *= 0.95;
@@ -320,8 +332,8 @@ namespace world
 				vec_t movement_vec = movement_line.q - movement_line.p;
 				if (intersects(movement_line, wall))
 				{
-					LOG("wall: %.2f %.2f %.2f %.2f", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
-					LOG("movement line: %f %f %f %f", movement_line.p.x, movement_line.p.y, movement_line.q.x, movement_line.q.y);
+					//LOG("wall: %.2f %.2f %.2f %.2f", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
+					//LOG("movement line: %f %f %f %f", movement_line.p.x, movement_line.p.y, movement_line.q.x, movement_line.q.y);
 					intersection(wall, movement_line, collision_points);
 					assert(!collision_points.empty());
 					vec_t wall_dir = wall.q - wall.p; 
@@ -343,7 +355,7 @@ namespace world
 					if (!covered_by((vec_t) ped, wall))
 						newpos = collision_points[0]+0.01*norm;
 
-					LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), line: (%f, %f) -> (%f, %f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, ped.x, ped.y, newpos.x, newpos.y);
+					//LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), line: (%f, %f) -> (%f, %f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, ped.x, ped.y, newpos.x, newpos.y);
 				}
 			}
 			ped = newpos;
