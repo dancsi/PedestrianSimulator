@@ -7,7 +7,7 @@
 
 namespace world
 {
-	extern int width, height;
+	extern int width, height, people_left;
 	extern float timestep;
 	extern scalar_field_t dist_field;
 	extern vec_field_t dist_field_grad;

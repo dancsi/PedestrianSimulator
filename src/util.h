@@ -6,6 +6,7 @@
 #include <functional>
 
 #define LOG(format, ...) do {fprintf(stderr, "%s(%d): " format, __FILE__, __LINE__, __VA_ARGS__); fprintf(stderr, "\n");} while(0)
+#define PAUSE() while(1)
 
 struct pair_t
 {

@@ -6,9 +6,13 @@ static int id_counter = 0;
 
 namespace ped_parameters
 {
-	const static float preferred_velocity = 3;
-	const static float maximum_velocity = 5;
-	const static float relaxation_time = 0.5;
+	static float preferred_velocity = 5;
+	static float maximum_velocity = 5;
+	static float relaxation_time = 0.5;
+	static float fov_half_angle = 100.0 / 180.0 * M_PI;
+	static float granular_interactions_radius = 2;
+	static float body_force_k = 100;
+	static float sliding_friction_k = 100;
 }
 
 struct ped_t : public vec_t

@@ -14,10 +14,10 @@ using namespace util;
 
 namespace world
 {
-	int width, height, n, m;
+	int width, height, n, m, people_left;
 	float timestep;
 	scalar_field_t dist_field;
-	vec_field_t dist_field_grad;
+	vec_field_t dist_field_grad, dynamic_field;
 	vector<vec_t> objectives;
 	matrix_t<bool> visited;
 	matrix_t<vec_t> prev_pos;
@@ -30,9 +30,20 @@ namespace world
 		width = config::get<int>("world", "width");
 		height = config::get<int>("world", "height");
 		float spacing = config::get<double>("world", "spacing");
+
 		timestep = config::get<double>("simulation", "timestep");
+
+		ped_parameters::preferred_velocity = config::get<double>("pedestrian", "preferred_velocity");
+		ped_parameters::maximum_velocity = config::get<double>("pedestrian", "maximum_velocity");
+		ped_parameters::relaxation_time = config::get<double>("pedestrian", "relaxation_time");
+		ped_parameters::fov_half_angle = config::get<double>("pedestrian", "fov_half_angle_deg")/180.0 * M_PI;
+		ped_parameters::granular_interactions_radius = config::get<double>("pedestrian", "granular_interactions_radius");
+		ped_parameters::body_force_k = config::get<double>("pedestrian", "body_force_k");
+		ped_parameters::sliding_friction_k = config::get<double>("pedestrian", "sliding_friction_k");
+
 		dist_field = scalar_field_t({ width, height }, spacing); dist_field.set(std::numeric_limits<float>::infinity());
 		dist_field_grad = vec_field_t({ width, height }, spacing); dist_field_grad.clear();
+		dynamic_field = vec_field_t({ width, height }, spacing); dynamic_field.clear();
 		n = dist_field.n, m = dist_field.m;
 		visited = util::matrix_t<bool>(n, m);
 		std::string walls_file = config::get<std::string>("data", "walls");
@@ -46,10 +57,11 @@ namespace world
 		}
 		else
 		{
-			people.push_back({ 30.5, 45.5, 0 });
-			people[0].v = { -1, -1 };
-
+			people.push_back({ 27-.1f, 22+.1f, 0 });
+			people[0].v = {100000, -100000 };
+			people[0].acc = { 1000, -1000 };
 		}
+		people_left = people.size();
 	}
 
 	void read_walls(std::string fname)
@@ -136,7 +148,7 @@ namespace world
 		for (ped_t ped : world::people)
 		{
 			nvgBeginPath(graphics::vg);
-			nvgCircle(graphics::vg, ped.x, ped.y, 0.5);
+			nvgCircle(graphics::vg, ped.x, ped.y, 0.3);
 			nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
 			nvgFill(graphics::vg);
 		}
@@ -292,6 +304,7 @@ namespace world
 		for (ped_t& ped : people)
 		{
 			ped.acc = { 0, 0 };
+			ped.alpha = atan2(ped.v.x, ped.v.y);
 			vec_t preferred_dir = dist_field_grad.interpolate(ped, visible);
 			if (preferred_dir.length()>0)
 				ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
@@ -303,7 +316,11 @@ namespace world
 				float r_length = r.length();
 				if (r_length < dist_field_grad.spacing / 2)
 				{
-					ped.arrived_at_destination = true;
+					if (!ped.arrived_at_destination)
+					{
+						ped.arrived_at_destination = true;
+						people_left--;
+					}				
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
 				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
@@ -312,8 +329,19 @@ namespace world
 			{
 				if (ped != p2 && !p2.arrived_at_destination)
 				{
-					vec_t r = (p2 - ped);
-					ped.acc += -50 * exp(-2.0*r.length_sq())*r.normalized();
+					vec_t r = ped - p2, r_norm = r.normalized();
+					vec_t increment = 50 * exp(-2.0*r.length_sq())*r_norm;
+					float angle = atan2(-r.x, -r.y);
+					if (fabs(angle - ped.alpha) >= ped_parameters::fov_half_angle) increment *= 0.5;
+					ped.acc += increment;
+					float r_length = r.length();
+					if (r_length <= ped_parameters::granular_interactions_radius)
+					{
+						vec_t body_force = ped_parameters::body_force_k * (ped_parameters::granular_interactions_radius - r_length) *r_norm;
+						vec_t tangential_dir = r_norm.perp();
+						vec_t sliding_friction = ped_parameters::sliding_friction_k * (ped_parameters::granular_interactions_radius - r_length) * tangential_dir.dot(p2.v - ped.v) * tangential_dir;
+						ped.acc += body_force + sliding_friction;
+					}
 					//vec_t incr = -50 * exp(-10.0*r.length_sq())*r.normalized();
 					//LOG("acc: (%f, %f), v: (%.2f, %.2f)",incr.x, incr.y, ped.v.x, ped.v.y);
 				}
@@ -329,11 +357,13 @@ namespace world
 			}
 		}
 
+		double v_sum = 0;
+
 		for (ped_t& ped : people)
 		{
-			//ped.v.saturate(3);
 			vec_t newpos = ped + ped.v*dt + 0.5*ped.acc*dt*dt;
-			ped.v += ped.acc*dt;
+			//brzina mora da se uveca za a*dt, jer u narednim redovima oduzimam neke projekcije od nje
+			ped.v = ped.v + ped.acc*dt;
 			//ped += ped.v*dt + 0.5*ped.acc*dt*dt;
 			for (line_t wall : walls)
 			{
@@ -341,13 +371,15 @@ namespace world
 				vec_t movement_vec = movement_line.q - movement_line.p;
 				if (intersects(movement_line, wall))
 				{
-					//LOG("wall: %.2f %.2f %.2f %.2f", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
-					//LOG("movement line: %f %f %f %f", movement_line.p.x, movement_line.p.y, movement_line.q.x, movement_line.q.y);
+#ifdef _DEBUG
+					LOG("wall: %.2f %.2f %.2f %.2f", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
+					LOG("movement line: %f %f %f %f, v: (%f, %f)", movement_line.p.x, movement_line.p.y, movement_line.q.x, movement_line.q.y,ped.v.x, ped.v.y);
+#endif
 					intersection(wall, movement_line, collision_points);
 					assert(!collision_points.empty());
 					vec_t wall_dir = wall.q - wall.p; 
 					vec_t norm = wall_dir.perp(); norm.normalize();
-					if (wall_dir.cross(ped.v) > 0) 
+					if (wall_dir.cross(movement_vec) > 0) 
 						norm *= -1;
 
 					if (norm.dot(ped.v) <= 0)
@@ -363,12 +395,16 @@ namespace world
 
 					if (!covered_by((vec_t) ped, wall))
 						newpos = collision_points[0]+0.01*norm;
-
-					//LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), line: (%f, %f) -> (%f, %f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, ped.x, ped.y, newpos.x, newpos.y);
+#ifdef _DEBUG
+					LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), newpos: (%f, %f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, newpos.x, newpos.y);
+					__debugbreak();
+#endif
 				}
 			}
 			ped = newpos;
+			v_sum += ped.v.length();
 		}
+		//LOG("Avg speed: %.3f", v_sum/people.size());
 		enforce_boundaries();
 	}
 
