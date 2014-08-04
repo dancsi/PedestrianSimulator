@@ -22,6 +22,7 @@ namespace util
 {
 	void init();
 	float rand_range(float low, float high);
+	int rand_int(int from, int to);
 	inline float sqr(float x) { return x*x; }
 
 	template<typename T>

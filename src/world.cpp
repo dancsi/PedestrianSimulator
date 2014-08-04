@@ -18,7 +18,7 @@ namespace world
 	float timestep;
 	scalar_field_t dist_field[2];
 	vec_field_t dist_field_grad[2], dynamic_field;
-	vector<vec_t> objectives;
+	vector<objective_t> objectives;
 	matrix_t<bool> visited;
 	matrix_t<vec_t> prev_pos[2];
 	matrix_t<vector<pair_t>> neighbours;
@@ -57,7 +57,8 @@ namespace world
 		vec_t spawnbox_corner2 = { config::get<double>("spawnbox", "x2"), config::get<double>("spawnbox", "y2") };
 		if (config::get<int>("people", "random_placement"))
 		{
-			place_people_randomly(config::get<int>("people", "count"), box_t{ spawnbox_corner1, spawnbox_corner2 });
+			place_people_randomly(config::get<int>("people", "count1"), box_t{ spawnbox_corner1, spawnbox_corner2 }, 0);
+			place_people_randomly(config::get<int>("people", "count2"), box_t{ spawnbox_corner1, spawnbox_corner2 }, 1);
 		}
 		else
 		{
@@ -128,11 +129,11 @@ namespace world
 		}
 	}
 
-	void place_people_randomly(size_t n_people, box_t& box)
+	void place_people_randomly(size_t n_people, box_t& box, short objective_color)
 	{
 		for (int i = 0; i < n_people; i++)
 		{
-			ped_t p ( { util::rand_range(box.min_corner().x, box.max_corner().x), util::rand_range(box.min_corner().y, box.max_corner().y) }, util::rand_range(0, 2 * M_PI) );
+			ped_t p ( { util::rand_range(box.min_corner().x, box.max_corner().x), util::rand_range(box.min_corner().y, box.max_corner().y) }, util::rand_range(0, 2 * M_PI),  objective_color);
 			people.push_back(p);
 		}
 	}
@@ -142,18 +143,24 @@ namespace world
 		graphics::draw(dist_field_grad[0]);
 		graphics::draw(dist_field_grad[1]);
 
-		for (vec_t obj : objectives)
+		for (objective_t obj : objectives)
 		{
 			nvgBeginPath(graphics::vg);
 			nvgCircle(graphics::vg, obj.x, obj.y, 0.5);
-			nvgFillColor(graphics::vg, nvgRGBAf(1, 0, 0, .5));
+			if (obj.color==0)
+				nvgFillColor(graphics::vg, nvgRGBAf(1, 0, 0, .5));
+			else
+				nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
 			nvgFill(graphics::vg);
 		}
 		for (ped_t ped : world::people)
 		{
 			nvgBeginPath(graphics::vg);
 			nvgCircle(graphics::vg, ped.x, ped.y, 0.3);
-			nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
+			if (ped.objective_color == 0)
+				nvgFillColor(graphics::vg, nvgRGBAf(1, 0, 0, .5));
+			else
+				nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
 			nvgFill(graphics::vg);
 		}
 		for (line_t& wall : walls)
@@ -322,8 +329,9 @@ namespace world
 				ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
 			else ped.v *= 0.95;
 			//LOG("initial acc: (%.2f, %.2f)", ped.acc.x, ped.acc.y);
-			for (vec_t obj : objectives)
+			for (objective_t obj : objectives)
 			{
+				if (obj.color!=ped.objective_color) continue;
 				vec_t r = obj - ped;
 				float r_length = r.length();
 				if (r_length < dist_field_grad[ped.objective_color].spacing / 2)

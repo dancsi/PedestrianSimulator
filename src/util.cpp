@@ -22,4 +22,11 @@ namespace util
 		std::uniform_real_distribution<> dist(low, high);
 		return dist(random_engine);
 	}
+
+	int rand_int(int from, int to)
+	{
+		std::uniform_int_distribution<> dist(from, to);
+		return dist(random_engine);
+	}
+
 }

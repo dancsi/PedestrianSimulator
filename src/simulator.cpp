@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	world::init();
 	graphics::init();
 
-	world::add_objective({ { 52, 29 } , 0});
+	//world::add_objective({ { 52, 29 } , 0});
 	atexit(world::destroy);
 
 	int step_counter = 0;
