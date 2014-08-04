@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vec.h"
+#include "field.h"
 
 #include <nanovg.h>
 #include <functional>
@@ -12,6 +13,7 @@ namespace graphics
 	extern double delta_time;
 
 	void init();
+	void init_buffers();
 	bool should_exit();
 	void begin_frame();
 	void end_frame();

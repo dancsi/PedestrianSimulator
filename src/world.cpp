@@ -372,7 +372,7 @@ namespace world
 				if (project(ped, wall, proj))
 				{
 					vec_t r = (proj - ped);
-					ped.acc += -50 * exp(-2.0*r.length_sq())*r.normalized();
+					ped.acc += -25 * exp(-1.8*r.length_sq())*r.normalized();
 				}
 			}
 		}

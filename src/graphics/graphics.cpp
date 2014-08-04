@@ -104,6 +104,9 @@ namespace graphics
 		prev_time = glfwGetTime();
 	}
 
+	GLuint rbo_id[2], fbo_id[2];
+
+
 	bool should_exit()
 	{
 		return glfwWindowShouldClose(window);
