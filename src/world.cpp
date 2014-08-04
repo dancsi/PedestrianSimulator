@@ -49,11 +49,11 @@ namespace world
 		std::string walls_file = config::get<std::string>("data", "walls");
 		read_walls(walls_file);
 		setup_neighbours();
-		vec_t spawnbox_corner = { config::get<double>("spawnbox", "x"), config::get<double>("spawnbox", "y") };
-		vec_t spawnbox_dims = { config::get<double>("spawnbox", "width"), config::get<double>("spawnbox", "height") };
+		vec_t spawnbox_corner1 = { config::get<double>("spawnbox", "x1"), config::get<double>("spawnbox", "y1") };
+		vec_t spawnbox_corner2 = { config::get<double>("spawnbox", "x2"), config::get<double>("spawnbox", "y2") };
 		if (config::get<int>("people", "random_placement"))
 		{
-			place_people_randomly(config::get<int>("people", "count"), box_t{ spawnbox_corner, spawnbox_corner + spawnbox_dims });
+			place_people_randomly(config::get<int>("people", "count"), box_t{ spawnbox_corner1, spawnbox_corner2 });
 		}
 		else
 		{
