@@ -16,11 +16,11 @@ namespace world
 {
 	int width, height, n, m, people_left;
 	float timestep;
-	scalar_field_t dist_field;
-	vec_field_t dist_field_grad, dynamic_field;
+	scalar_field_t dist_field[2];
+	vec_field_t dist_field_grad[2], dynamic_field;
 	vector<vec_t> objectives;
 	matrix_t<bool> visited;
-	matrix_t<vec_t> prev_pos;
+	matrix_t<vec_t> prev_pos[2];
 	matrix_t<vector<pair_t>> neighbours;
 	vector<ped_t> people, inactive_people;
 	vector<line_t> walls;
@@ -41,14 +41,18 @@ namespace world
 		ped_parameters::body_force_k = config::get<double>("pedestrian", "body_force_k");
 		ped_parameters::sliding_friction_k = config::get<double>("pedestrian", "sliding_friction_k");
 
-		dist_field = scalar_field_t({ width, height }, spacing); dist_field.set(std::numeric_limits<float>::infinity());
-		dist_field_grad = vec_field_t({ width, height }, spacing); dist_field_grad.clear();
-		dynamic_field = vec_field_t({ width, height }, spacing); dynamic_field.clear();
-		n = dist_field.n, m = dist_field.m;
-		visited = util::matrix_t<bool>(n, m);
 		std::string walls_file = config::get<std::string>("data", "walls");
 		read_walls(walls_file);
-		setup_neighbours();
+
+		for (int i = 0; i < 2; i++)
+		{
+			dist_field[i] = scalar_field_t({ width, height }, spacing); dist_field[i].set(std::numeric_limits<float>::infinity());
+			dist_field_grad[i] = vec_field_t({ width, height }, spacing); dist_field_grad[i].clear();
+			n = dist_field[0].n, m = dist_field[0].m;
+			setup_neighbours(dist_field[i], dist_field_grad[i], prev_pos[i]);
+		}
+
+		visited = util::matrix_t<bool>(n, m);
 		vec_t spawnbox_corner1 = { config::get<double>("spawnbox", "x1"), config::get<double>("spawnbox", "y1") };
 		vec_t spawnbox_corner2 = { config::get<double>("spawnbox", "x2"), config::get<double>("spawnbox", "y2") };
 		if (config::get<int>("people", "random_placement"))
@@ -57,9 +61,7 @@ namespace world
 		}
 		else
 		{
-			people.push_back({ 27-.1f, 22+.1f, 0 });
-			people[0].v = {100000, -100000 };
-			people[0].acc = { 1000, -1000 };
+			people.push_back(vec_t{ 27, 21 });
 		}
 		people_left = people.size();
 	}
@@ -75,7 +77,7 @@ namespace world
 		fclose(fwalls);
 	}
 
-	void setup_neighbours()
+	void setup_neighbours( scalar_field_t& dist_field, vec_field_t& dist_field_grad, matrix_t<vec_t>& prev_pos)
 	{
 		prev_pos = matrix_t<vec_t>(n, m);
 		prev_pos.foreach_element([&](size_t i, size_t j, vec_t& v) {v = dist_field.get_coordinates(i, j); });
@@ -130,14 +132,16 @@ namespace world
 	{
 		for (int i = 0; i < n_people; i++)
 		{
-			ped_t p = { util::rand_range(box.min_corner().x, box.max_corner().x), util::rand_range(box.min_corner().y, box.max_corner().y), util::rand_range(0, 2 * M_PI) };
+			ped_t p ( { util::rand_range(box.min_corner().x, box.max_corner().x), util::rand_range(box.min_corner().y, box.max_corner().y) }, util::rand_range(0, 2 * M_PI) );
 			people.push_back(p);
 		}
 	}
 
 	void draw()
 	{
-		graphics::draw(dist_field_grad);
+		graphics::draw(dist_field_grad[0]);
+		graphics::draw(dist_field_grad[1]);
+
 		for (vec_t obj : objectives)
 		{
 			nvgBeginPath(graphics::vg);
@@ -166,17 +170,21 @@ namespace world
 	struct astar_cmp
 	{
 		static vec_t start;
+		static vec_field_t* dist_field_grad;
+		static scalar_field_t* dist_field;
 		//astar_cmp(vec_t start) :start(start) {}
 		float_t euclidean_dist(pair_t x)
 		{
-			return start.dist(dist_field.get_coordinates(x));
+			return start.dist(dist_field->get_coordinates(x));
 		}
 		const bool operator()(pair_t a, pair_t b)
 		{
-			return dist_field[a] + euclidean_dist(a) < dist_field[b] + euclidean_dist(b);
+			return (*dist_field)[a] + euclidean_dist(a) < (*dist_field)[b] + euclidean_dist(b);
 		}
 	};
 	vec_t astar_cmp::start;
+	vec_field_t* astar_cmp::dist_field_grad = 0;
+	scalar_field_t* astar_cmp::dist_field = 0;
 	std::multiset < pair_t, astar_cmp > q;
 
 	bool visible(vec_t a, vec_t b)
@@ -185,14 +193,14 @@ namespace world
 		return all_of(walls.begin(), walls.end(), [&sight_ray](line_t& wall) {return !intersects(sight_ray, wall); });
 	}
 
-	void point_grad_vec_to_prev_pos(pair_t p) //usmerava
+	void point_grad_vec_to_prev_pos(pair_t p, scalar_field_t& dist_field, vec_field_t& dist_field_grad, matrix_t<vec_t>& prev_pos) //usmerava
 	{
 		vec_t pos = dist_field.get_coordinates(p);
 		vec_t dir = (prev_pos[p] - pos);
 		dist_field_grad[p] = dir.normalize();
 	}
 
-	void relax(pair_t to, pair_t via)
+	void relax(pair_t to, pair_t via, scalar_field_t& dist_field, vec_field_t& dist_field_grad, matrix_t<vec_t>& prev_pos)
 	{
 		bool b = false;
 		vec_t to_pos = dist_field.get_coordinates(to), via_pos = dist_field.get_coordinates(via);
@@ -234,21 +242,25 @@ namespace world
 			dist_field[to] = newdist;
 			q.insert(to);
 			prev_pos[to] = possible_prev_pos;
-			point_grad_vec_to_prev_pos(to);
+			point_grad_vec_to_prev_pos(to, dist_field, dist_field_grad, prev_pos);
 		}
 	}
 
-	void astar(vec_t start)
+	void astar(vec_t start, scalar_field_t& dist_field, vec_field_t& dist_field_grad, matrix_t<vec_t>& prev_pos)
 	{
 		visited.clear();
-		auto startv = dist_field.get_ijv(start); astar_cmp::start = start;
+		auto startv = dist_field.get_ijv(start); 
+		astar_cmp::start = start;
+		astar_cmp::dist_field = &dist_field;
+		astar_cmp::dist_field_grad = &dist_field_grad;
 		for (pair_t p : startv)
 		{
 			float_t newdist = start.dist(dist_field.get_coordinates(p));
 			if (newdist < dist_field[p])
 			{
 				dist_field[p] = newdist;
-				prev_pos[p] = start; point_grad_vec_to_prev_pos(p);
+				prev_pos[p] = start; 
+				point_grad_vec_to_prev_pos(p, dist_field, dist_field_grad, prev_pos);
 				q.insert(p);
 			}
 		}
@@ -259,16 +271,16 @@ namespace world
 			for (pair_t p : neighbours[t])
 			{
 				if (visited[p]) continue;
-				relax(p, t);
+				relax(p, t, dist_field, dist_field_grad, prev_pos);
 			}
 		}
 	}
 	/*
 	Ukoliko bi zeleli da cilj bude neki poligon, umesto samo tacke, postavicemo za ciljeve sve tacke koje su na "ivici", u unutrasnjosti poligona.
 	*/
-	void add_objective(vec_t obj)
+	void add_objective(objective_t obj)
 	{
-		astar(obj);
+		astar(obj, dist_field[obj.color], dist_field_grad[obj.color], prev_pos[obj.color]);
 		objectives.push_back(obj);
 	}
 
@@ -305,7 +317,7 @@ namespace world
 		{
 			ped.acc = { 0, 0 };
 			ped.alpha = atan2(ped.v.x, ped.v.y);
-			vec_t preferred_dir = dist_field_grad.interpolate(ped, visible);
+			vec_t preferred_dir = dist_field_grad[ped.objective_color].interpolate(ped, visible);
 			if (preferred_dir.length()>0)
 				ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
 			else ped.v *= 0.95;
@@ -314,7 +326,7 @@ namespace world
 			{
 				vec_t r = obj - ped;
 				float r_length = r.length();
-				if (r_length < dist_field_grad.spacing / 2)
+				if (r_length < dist_field_grad[ped.objective_color].spacing / 2)
 				{
 					if (!ped.arrived_at_destination)
 					{
@@ -322,8 +334,8 @@ namespace world
 						people_left--;
 					}				
 				}
-				ped.acc += (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
-				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad.spacing))*r;
+				ped.acc += (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad[ped.objective_color].spacing))*r;
+				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad[ped.objective_color].spacing))*r;
 			}
 			for (ped_t& p2 : people)
 			{
@@ -371,10 +383,6 @@ namespace world
 				vec_t movement_vec = movement_line.q - movement_line.p;
 				if (intersects(movement_line, wall))
 				{
-#ifdef _DEBUG
-					LOG("wall: %.2f %.2f %.2f %.2f", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
-					LOG("movement line: %f %f %f %f, v: (%f, %f)", movement_line.p.x, movement_line.p.y, movement_line.q.x, movement_line.q.y,ped.v.x, ped.v.y);
-#endif
 					intersection(wall, movement_line, collision_points);
 					assert(!collision_points.empty());
 					vec_t wall_dir = wall.q - wall.p; 
@@ -395,10 +403,6 @@ namespace world
 
 					if (!covered_by((vec_t) ped, wall))
 						newpos = collision_points[0]+0.01*norm;
-#ifdef _DEBUG
-					LOG("v: (%.2f, %.2f), a: (%.2f, %.2f), newpos: (%f, %f)", ped.v.x, ped.v.y, ped.acc.x, ped.acc.y, newpos.x, newpos.y);
-					__debugbreak();
-#endif
 				}
 			}
 			ped = newpos;

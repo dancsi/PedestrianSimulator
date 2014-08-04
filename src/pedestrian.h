@@ -21,7 +21,8 @@ struct ped_t : public vec_t
 	vec_t v, acc;
 	int id;
 	bool arrived_at_destination;
-	ped_t(std::initializer_list<float> params) : vec_t({ *params.begin(), *(params.begin() + 1) }), alpha(*(params.begin() + 2)), v({ 0, 0 }), acc({0, 0}), arrived_at_destination(0), id(id_counter++) {}
+	short objective_color;
+	ped_t(vec_t pos, float alpha = 0, short color=0) :vec_t(pos), alpha(alpha), objective_color(color), v({ 0, 0 }), acc({0, 0}), arrived_at_destination(0), id(id_counter++) {}
 	ped_t& operator=(vec_t vec)
 	{
 		x = vec.x;

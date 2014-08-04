@@ -33,6 +33,7 @@ struct field_t : matrix_t<T>
 	pair_t get_ij(vec_t v)
 	{
 		return{ size_t(v.y / spacing), size_t(v.x / spacing) };
+		
 	}
 	std::vector<pair_t> get_ijv(vec_t v)
 	{
@@ -83,7 +84,7 @@ struct field_t : matrix_t<T>
 		return res.normalize();
 	}
 };
-
+ 
 //template<typename T>
 struct vec_field_t : field_t<vec_t>
 {
