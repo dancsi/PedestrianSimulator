@@ -24,6 +24,8 @@ namespace world
 	matrix_t<vector<pair_t>> neighbours;
 	vector<ped_t> people, inactive_people;
 	vector<line_t> walls;
+	int world::step_counter = 0;
+	FILE*outfile = fopen("Vremena.txt", "w");
 
 	void init()
 	{
@@ -340,17 +342,18 @@ namespace world
 					{
 						ped.arrived_at_destination = true;
 						people_left--;
+						fprintf(outfile, "%f, %d \n", world::step_counter*world::timestep, people.size()-people_left );
 					}				
 				}
-				ped.acc += (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad[ped.objective_color].spacing))*r;
-				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 1.0*dist_field_grad[ped.objective_color].spacing))*r;
+				ped.acc += (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
+				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
 			}
 			for (ped_t& p2 : people)
 			{
 				if (ped != p2 && !p2.arrived_at_destination)
 				{
 					vec_t r = ped - p2, r_norm = r.normalized();
-					vec_t increment = 50 * exp(-2.0*r.length_sq())*r_norm;
+					vec_t increment = 25 * exp(-1.8*r.length_sq())*r_norm;
 					float angle = atan2(-r.x, -r.y);
 					if (fabs(angle - ped.alpha) >= ped_parameters::fov_half_angle) increment *= 0.5;
 					ped.acc += increment;

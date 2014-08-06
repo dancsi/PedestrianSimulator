@@ -16,20 +16,21 @@ int main(int argc, char** argv)
 	world::init();
 	graphics::init();
 
-	//world::add_objective({ { 52, 29 } , 0});
+	world::add_objective({ { 102, 26 }, 0});
+	world::add_objective({ { 12, 26 }, 1 });
 	atexit(world::destroy);
 
-	int step_counter = 0;
+
 	while (!graphics::should_exit() && world::people_left)
 	{
-		++step_counter;
+		++world::step_counter;
 		graphics::begin_frame();
 		world::step(world::timestep);
 		world::draw();
 		graphics::end_frame();
 	}
 
-	printf("Simulation ended after %f time\n", step_counter*world::timestep);
+	printf("Simulation ended after %f time\n", world::step_counter*world::timestep);
 	PAUSE();
 
 	return 0;
