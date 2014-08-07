@@ -347,13 +347,17 @@ namespace world
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
 				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
+				float fluc1 = util::rand_range(-1, 1);
+				float fluc2 = util::rand_range(-1, 1);
+				vec_t fluc = { fluc1, fluc2 };
+				ped.acc +=0.1*fluc;
 			}
 			for (ped_t& p2 : people)
 			{
 				if (ped != p2 && !p2.arrived_at_destination)
 				{
 					vec_t r = ped - p2, r_norm = r.normalized();
-					vec_t increment = 25 * exp(-1.8*r.length_sq())*r_norm;
+					vec_t increment = 25 * exp(-1.7*r.length_sq())*r_norm;
 					float angle = atan2(-r.x, -r.y);
 					if (fabs(angle - ped.alpha) >= ped_parameters::fov_half_angle) increment *= 0.5;
 					ped.acc += increment;
@@ -375,7 +379,7 @@ namespace world
 				if (project(ped, wall, proj))
 				{
 					vec_t r = (proj - ped);
-					ped.acc += -25 * exp(-1.8*r.length_sq())*r.normalized();
+					ped.acc += -25 * exp(-1.6*r.length_sq())*r.normalized();
 				}
 			}
 		}

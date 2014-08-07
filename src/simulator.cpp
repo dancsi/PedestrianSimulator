@@ -16,8 +16,8 @@ int main(int argc, char** argv)
 	world::init();
 	graphics::init();
 
-	world::add_objective({ { 102, 26 }, 0});
-	world::add_objective({ { 12, 26 }, 1 });
+	world::add_objective({ { 2, 20 }, 0});
+	world::add_objective({ { 106, 20 },1});
 	atexit(world::destroy);
 
 
