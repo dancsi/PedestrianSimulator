@@ -25,7 +25,9 @@ namespace world
 	vector<ped_t> people, inactive_people;
 	vector<line_t> walls;
 	int world::step_counter = 0;
-	FILE*outfile = fopen("Vremena.txt", "w");
+	FILE*tfile = fopen("Vremena.txt", "w");
+	FILE*sfile = fopen("Putevi.txt", "w");
+
 
 	void init()
 	{
@@ -342,7 +344,8 @@ namespace world
 					{
 						ped.arrived_at_destination = true;
 						people_left--;
-						fprintf(outfile, "%f, %d \n", world::step_counter*world::timestep, people.size()-people_left );
+						fprintf(tfile, "%f, %d \n", world::step_counter*world::timestep, people.size()-people_left);
+						fprintf(sfile, "%f, %d \n", ped.distance_covered, people.size() - people_left);
 					}				
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
@@ -350,7 +353,7 @@ namespace world
 				float fluc1 = util::rand_range(-1, 1);
 				float fluc2 = util::rand_range(-1, 1);
 				vec_t fluc = { fluc1, fluc2 };
-				ped.acc +=0.1*fluc;
+				ped.acc +=0.2*fluc;
 			}
 			for (ped_t& p2 : people)
 			{
@@ -420,6 +423,9 @@ namespace world
 						newpos = collision_points[0]+0.01*norm;
 				}
 			}
+			vec_t dist = ped - newpos;
+			float dist_length = dist.length();
+			ped.distance_covered += dist_length;
 			ped = newpos;
 			v_sum += ped.v.length();
 		}
