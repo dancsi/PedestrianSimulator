@@ -15,7 +15,8 @@ using namespace util;
 namespace world
 {
 	int width, height, n, m, people_left;
-	float timestep;
+	float timestep, nerv, dyn_field, dyn_field_radius;
+	vec_t dynamic = { 0, 0 };
 	scalar_field_t dist_field[2];
 	vec_field_t dist_field_grad[2], dynamic_field;
 	vector<objective_t> objectives;
@@ -27,6 +28,7 @@ namespace world
 	int world::step_counter = 0;
 	FILE*tfile = fopen("Vremena.txt", "w");
 	FILE*sfile = fopen("Putevi.txt", "w");
+	FILE*vfile = fopen("Srednje brzine.txt", "w");
 
 
 	void init()
@@ -36,6 +38,9 @@ namespace world
 		float spacing = config::get<double>("world", "spacing");
 
 		timestep = config::get<double>("simulation", "timestep");
+		nerv = config::get<double>("pedestrian", "nervousness");
+		dyn_field = config::get<double>("pedestrian", "dynamic_field_constant");
+		dyn_field_radius = config::get<double>("pedestrian", "dynamic_field_radius");
 
 		ped_parameters::preferred_velocity = config::get<double>("pedestrian", "preferred_velocity");
 		ped_parameters::maximum_velocity = config::get<double>("pedestrian", "maximum_velocity");
@@ -346,6 +351,7 @@ namespace world
 						people_left--;
 						fprintf(tfile, "%f, %d \n", world::step_counter*world::timestep, people.size()-people_left);
 						fprintf(sfile, "%f, %d \n", ped.distance_covered, people.size() - people_left);
+						fprintf(vfile, "%f, %d \n", ped.distance_covered / (world::step_counter*world::timestep), people.size() - people_left);
 					}				
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
@@ -353,14 +359,14 @@ namespace world
 				float fluc1 = util::rand_range(-1, 1);
 				float fluc2 = util::rand_range(-1, 1);
 				vec_t fluc = { fluc1, fluc2 };
-				ped.acc +=0.2*fluc;
+				ped.acc +=nerv*fluc;
 			}
 			for (ped_t& p2 : people)
 			{
 				if (ped != p2 && !p2.arrived_at_destination)
 				{
 					vec_t r = ped - p2, r_norm = r.normalized();
-					vec_t increment = 25 * exp(-1.7*r.length_sq())*r_norm;
+					vec_t increment = 25 * exp(-1.6*r.length_sq())*r_norm;
 					float angle = atan2(-r.x, -r.y);
 					if (fabs(angle - ped.alpha) >= ped_parameters::fov_half_angle) increment *= 0.5;
 					ped.acc += increment;
@@ -372,6 +378,12 @@ namespace world
 						vec_t sliding_friction = ped_parameters::sliding_friction_k * (ped_parameters::granular_interactions_radius - r_length) * tangential_dir.dot(p2.v - ped.v) * tangential_dir;
 						ped.acc += body_force + sliding_friction;
 					}
+					if (r_length < dyn_field_radius && p2.objective_color == ped.objective_color)
+					{
+						dynamic += p2.v;
+						vec_t dynamic_norm = dynamic.normalize();
+						ped.acc += dyn_field*dynamic_norm*exp(-r.length_sq());
+					}
 					//vec_t incr = -50 * exp(-10.0*r.length_sq())*r.normalized();
 					//LOG("acc: (%f, %f), v: (%.2f, %.2f)",incr.x, incr.y, ped.v.x, ped.v.y);
 				}
@@ -382,7 +394,7 @@ namespace world
 				if (project(ped, wall, proj))
 				{
 					vec_t r = (proj - ped);
-					ped.acc += -25 * exp(-1.6*r.length_sq())*r.normalized();
+					ped.acc += -25 * exp(-1.9*r.length_sq())*r.normalized();
 				}
 			}
 		}
