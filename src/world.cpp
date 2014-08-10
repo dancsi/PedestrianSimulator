@@ -15,8 +15,9 @@ using namespace util;
 namespace world
 {
 	int width, height, n, m, people_left;
-	float timestep, nerv, dyn_field, dyn_field_radius;
+	float timestep, nerv, dyn_field, dyn_field_radius, field_const;
 	vec_t dynamic = { 0, 0 };
+	vec_t dynamic_norm = { 0, 0 };
 	scalar_field_t dist_field[2];
 	vec_field_t dist_field_grad[2], dynamic_field;
 	vector<objective_t> objectives;
@@ -41,6 +42,7 @@ namespace world
 		nerv = config::get<double>("pedestrian", "nervousness");
 		dyn_field = config::get<double>("pedestrian", "dynamic_field_constant");
 		dyn_field_radius = config::get<double>("pedestrian", "dynamic_field_radius");
+		field_const = config::get<double>("pedestrian", "static_field_constant");
 
 		ped_parameters::preferred_velocity = config::get<double>("pedestrian", "preferred_velocity");
 		ped_parameters::maximum_velocity = config::get<double>("pedestrian", "maximum_velocity");
@@ -333,7 +335,22 @@ namespace world
 		{
 			ped.acc = { 0, 0 };
 			ped.alpha = atan2(ped.v.x, ped.v.y);
-			vec_t preferred_dir = dist_field_grad[ped.objective_color].interpolate(ped, visible);
+			vec_t preferred_field = dist_field_grad[ped.objective_color].interpolate(ped, visible);
+			for (ped_t& p2 : people)
+			{
+				vec_t r = ped - p2, r_norm = r.normalized();
+				float r_length = r.length();
+				if (ped != p2 && !p2.arrived_at_destination && r_length < dyn_field_radius && p2.objective_color == ped.objective_color)
+				{
+					dynamic += p2.v;
+					dynamic_norm = dynamic.normalize();
+				}
+			}
+			float fluc1 = util::rand_range(-1, 1);
+			float fluc2 = util::rand_range(-1, 1);
+			vec_t fluc = { fluc1, fluc2 };
+			vec_t preferred_dir = dyn_field*dynamic_norm + nerv*fluc + field_const*preferred_field; //dyn_field + nerv + field_const = 1
+
 			if (preferred_dir.length()>0)
 				ped.acc = (ped_parameters::preferred_velocity*preferred_dir - ped.v) / ped_parameters::relaxation_time;
 			else ped.v *= 0.95;
@@ -349,24 +366,20 @@ namespace world
 					{
 						ped.arrived_at_destination = true;
 						people_left--;
-						fprintf(tfile, "%f, %d \n", world::step_counter*world::timestep, people.size()-people_left);
-						fprintf(sfile, "%f, %d \n", ped.distance_covered, people.size() - people_left);
-						fprintf(vfile, "%f, %d \n", ped.distance_covered / (world::step_counter*world::timestep), people.size() - people_left);
+						fprintf(tfile, "%d %f \n", people.size() - people_left, world::step_counter*world::timestep);
+						fprintf(sfile, "%d %f \n", people.size() - people_left, ped.distance_covered);
+						fprintf(vfile, "%d %f \n", people.size() - people_left, ped.distance_covered / (world::step_counter*world::timestep));
 					}				
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
 				vec_t increment = (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
-				float fluc1 = util::rand_range(-1, 1);
-				float fluc2 = util::rand_range(-1, 1);
-				vec_t fluc = { fluc1, fluc2 };
-				ped.acc +=nerv*fluc;
 			}
 			for (ped_t& p2 : people)
 			{
 				if (ped != p2 && !p2.arrived_at_destination)
 				{
 					vec_t r = ped - p2, r_norm = r.normalized();
-					vec_t increment = 25 * exp(-1.6*r.length_sq())*r_norm;
+					vec_t increment = 25 * exp(-1.5*r.length_sq())*r_norm;
 					float angle = atan2(-r.x, -r.y);
 					if (fabs(angle - ped.alpha) >= ped_parameters::fov_half_angle) increment *= 0.5;
 					ped.acc += increment;
@@ -394,7 +407,7 @@ namespace world
 				if (project(ped, wall, proj))
 				{
 					vec_t r = (proj - ped);
-					ped.acc += -25 * exp(-1.9*r.length_sq())*r.normalized();
+					ped.acc += -25 * exp(-1.5*r.length_sq())*r.normalized();
 				}
 			}
 		}
@@ -447,14 +460,7 @@ namespace world
 
 	void destroy()
 	{
-		/*
-		FILE* walls_f = fopen("new_walls.dat", "w");
-		for (line_t wall : walls)
-		{
-			fprintf(walls_f, "%f %f %f %f\n", wall.p.x, wall.p.y, wall.q.x, wall.q.y);
-		}
-		fclose(walls_f);
-		*/
+		
 	}
 
 }
