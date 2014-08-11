@@ -366,9 +366,11 @@ namespace world
 					{
 						ped.arrived_at_destination = true;
 						people_left--;
+						float v_avg = ped.distance_covered / (world::step_counter*world::timestep);
 						fprintf(tfile, "%d %f \n", people.size() - people_left, world::step_counter*world::timestep);
 						fprintf(sfile, "%d %f \n", people.size() - people_left, ped.distance_covered);
-						fprintf(vfile, "%d %f \n", people.size() - people_left, ped.distance_covered / (world::step_counter*world::timestep));
+						fprintf(vfile, "%d %f \n", people.size() - people_left, v_avg);
+						
 					}				
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
