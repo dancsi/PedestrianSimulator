@@ -31,6 +31,7 @@ namespace graphics
 
 	void init()
 	{
+#ifdef GRAPHICS
 		if (!glfwInit()) {
 			LOG("Failed to init GLFW.");
 			exit(-1);
@@ -102,6 +103,7 @@ namespace graphics
 		initGPUTimer(&gpu_timer);
 		glfwSetTime(0);
 		prev_time = glfwGetTime();
+#endif
 	}
 
 	GLuint rbo_id[2], fbo_id[2];
@@ -109,11 +111,16 @@ namespace graphics
 
 	bool should_exit()
 	{
+#ifdef GRAPHICS
 		return glfwWindowShouldClose(window);
+#else
+		return false;
+#endif
 	}
 
 	void begin_frame()
 	{
+#ifdef GRAPHICS
 		render_start_time = glfwGetTime();
 		delta_time = render_start_time - prev_time;
 		prev_time = render_start_time;
@@ -128,10 +135,12 @@ namespace graphics
 
 		nvgBeginFrame(vg, fb_width, fb_height, 1);
 		draw_world_scale();
+#endif
 	}
 
 	void end_frame()
 	{
+#ifdef GRAPHICS
 		draw_ui_scale();
 		renderGraph(vg, 5, 5, &fps_graph);
 		renderGraph(vg, 5 + 200 + 5, 5, &cpu_graph);
@@ -152,29 +161,37 @@ namespace graphics
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+#endif
 	}
 
 	void destroy()
 	{
+#ifdef GRAPHICS
 		nvgDeleteGL3(vg);
 		glfwTerminate();
+#endif
 	}
 
 	void draw_ui_scale()
 	{
+#ifdef GRAPHICS
 		nvgResetTransform(vg);
 		one_pixel = 1.0;
+#endif
 	}
 
 	void draw_world_scale()
 	{
+#ifdef GRAPHICS
 		nvgResetTransform(vg);
 		nvgTranslate(vg, fb_width / 2, fb_height / 2);
 		nvgScale(vg, double(fb_width) / world::width, double(fb_height) / world::height);
 		nvgTranslate(vg, -world::width / 2, -world::height / 2);
 		one_pixel = double(world::width) / fb_width;
+#endif
 	}
 
+#ifdef GRAPHICS
 	template<>
 	void draw<vec_field_t>(vec_field_t& vf, NVGcolor& color)
 	{
@@ -203,6 +220,18 @@ namespace graphics
 		nvgFillColor(graphics::vg, color);
 		nvgFill(graphics::vg);
 	}
+
+	template<>
+	void draw<line_t>(line_t& line, NVGcolor& color)
+	{
+		nvgBeginPath(graphics::vg);
+		nvgMoveTo(graphics::vg, line.p.x, line.p.y);
+		nvgLineTo(graphics::vg, line.q.x, line.q.y);
+		nvgStrokeColor(graphics::vg, color);
+		nvgStrokeWidth(graphics::vg, 3 * graphics::one_pixel);
+		nvgStroke(graphics::vg);
+	}
+#endif
 
 	vec_t world2screen(vec_t v)
 	{

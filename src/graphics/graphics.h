@@ -1,5 +1,7 @@
 #pragma once
 
+//#define GRAPHICS
+
 #include "vec.h"
 #include "field.h"
 
@@ -25,4 +27,12 @@ namespace graphics
 
 	template<typename T>
 	void draw(T& drawable, NVGcolor& color = nvgRGB(0, 0, 0));
+#ifndef GRAPHICS
+	template<typename T>
+	void draw(T& drawable, NVGcolor& color)
+	{
+		return;
+	}
+#endif
+
 }

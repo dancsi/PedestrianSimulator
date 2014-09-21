@@ -4,6 +4,7 @@
 #include "vec.h"
 #include "graphics.h"
 #include "pedestrian.h"
+#include "grid.h"
 
 #include <limits>
 #include <set>
@@ -24,13 +25,10 @@ namespace world
 	matrix_t<bool> visited;
 	matrix_t<vec_t> prev_pos[2];
 	matrix_t<vector<pair_t>> neighbours;
-	vector<ped_t> people, inactive_people;
+	grid_t people, inactive_people;
 	vector<line_t> walls;
 	int world::step_counter = 0;
-	FILE*tfile = fopen("Vremena.txt", "w");
-	FILE*sfile = fopen("Putevi.txt", "w");
-	FILE*vfile = fopen("Srednje brzine.txt", "w");
-
+	FILE *f_statistics = fopen("logs\\statistics.txt", "w");
 
 	void init()
 	{
@@ -73,7 +71,7 @@ namespace world
 		}
 		else
 		{
-			people.push_back(vec_t{ 27, 21 });
+			people.push_back(ped_t(vec_t{ 27, 21 }));
 		}
 		people_left = people.size();
 	}
@@ -156,32 +154,15 @@ namespace world
 
 		for (objective_t obj : objectives)
 		{
-			nvgBeginPath(graphics::vg);
-			nvgCircle(graphics::vg, obj.x, obj.y, 0.5);
-			if (obj.color==0)
-				nvgFillColor(graphics::vg, nvgRGBAf(1, 0, 0, .5));
-			else
-				nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
-			nvgFill(graphics::vg);
+			graphics::draw(circle_t{ obj.x, obj.y, .5 }, obj.color ? nvgRGBAf(0, 1, 0, .5) : nvgRGBAf(1, 0, 0, .5));
 		}
 		for (ped_t ped : world::people)
 		{
-			nvgBeginPath(graphics::vg);
-			nvgCircle(graphics::vg, ped.x, ped.y, 0.3);
-			if (ped.objective_color == 0)
-				nvgFillColor(graphics::vg, nvgRGBAf(1, 0, 0, .5));
-			else
-				nvgFillColor(graphics::vg, nvgRGBAf(0, 1, 0, .5));
-			nvgFill(graphics::vg);
+			graphics::draw(circle_t{ ped.x, ped.y, .3f }, ped.objective_color ? nvgRGBAf(0, 1, 0, .5) : nvgRGBAf(1, 0, 0, .5));
 		}
 		for (line_t& wall : walls)
 		{
-			nvgBeginPath(graphics::vg);
-			nvgMoveTo(graphics::vg, wall.p.x, wall.p.y);
-			nvgLineTo(graphics::vg, wall.q.x, wall.q.y);
-			nvgStrokeColor(graphics::vg, nvgRGBAf(0, 0, 1, .5));
-			nvgStrokeWidth(graphics::vg, 3 * graphics::one_pixel);
-			nvgStroke(graphics::vg);
+			graphics::draw(wall, nvgRGBAf(0, 0, 1, .5));
 		}
 	}
 
@@ -367,10 +348,7 @@ namespace world
 						ped.arrived_at_destination = true;
 						people_left--;
 						float v_avg = ped.distance_covered / (world::step_counter*world::timestep);
-						fprintf(tfile, "%d %f \n", people.size() - people_left, world::step_counter*world::timestep);
-						fprintf(sfile, "%d %f \n", people.size() - people_left, ped.distance_covered);
-						fprintf(vfile, "%d %f \n", people.size() - people_left, v_avg);
-						
+						fprintf(f_statistics, "%f %f %f\n", world::step_counter*world::timestep, ped.distance_covered, v_avg);
 					}				
 				}
 				ped.acc += (10. / r_length)*exp(-sqr(r_length - 2.0*dist_field_grad[ped.objective_color].spacing))*r;
