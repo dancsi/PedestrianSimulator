@@ -216,3 +216,7 @@ pip-log.txt
 .mr.developer.cfg
 *.filters
 log.txt
+
+GA/
+logs/statistics.txt
+test.ps1

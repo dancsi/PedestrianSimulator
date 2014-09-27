@@ -12,8 +12,15 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	config::read("config.ini");
 	util::init();
+	if (argc > 1)
+	{
+		config::read(argv[1]);
+	}
+	else
+	{
+		config::read("config.ini");
+	}
 	world::init();
 	graphics::init();
 
@@ -35,10 +42,11 @@ int main(int argc, char** argv)
 	auto end_time = chrono::high_resolution_clock::now();
 	chrono::duration<double> elapsed_time = end_time - start_time;
 
-	printf("Simulation ended after %f time\n", world::step_counter*world::timestep);
+	printf("%d\n", world::step_counter);
+	fprintf(stderr, "Simulation ended after %f time\n", world::step_counter*world::timestep);
 	fprintf(stderr, "Wall time: %.3f\n", elapsed_time.count());
 
-	PAUSE();
+	//PAUSE();
 
 	return 0;
 }

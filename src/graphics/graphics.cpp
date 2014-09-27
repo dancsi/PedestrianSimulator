@@ -106,9 +106,6 @@ namespace graphics
 #endif
 	}
 
-	GLuint rbo_id[2], fbo_id[2];
-
-
 	bool should_exit()
 	{
 #ifdef GRAPHICS

@@ -1,6 +1,8 @@
 #include "config.h"
+#include "util.h"
 
 #include <windows.h>
+#include <Shlwapi.h>
 #include <string>
 
 namespace config
@@ -9,6 +11,7 @@ namespace config
 	void read(char* file)
 	{
 		fname = std::string(".\\")+std::string(file);
+		if (!PathFileExists(fname.c_str())) fname = std::string(file);
 	}
 
 	template<typename T>
