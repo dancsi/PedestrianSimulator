@@ -1,3 +1,5 @@
+#ifdef _DEBUG
+
 //
 // Copyright (c) 2013 Mikko Mononen memon@inside.org
 //
@@ -2583,3 +2585,5 @@ void nvgTextMetrics(struct NVGcontext* ctx, float* ascender, float* descender, f
 	if (lineh != NULL)
 		*lineh *= invscale;
 }
+
+#endif

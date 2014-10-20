@@ -44,8 +44,8 @@ int main(int argc, char** argv)
 
 	if (world::step_counter > world::allowed_steps) world::step_counter = INT_MAX;
 	printf("%d\n", world::step_counter);
-	fprintf(stderr, "Simulation ended after %f time\n", world::step_counter*world::timestep);
-	fprintf(stderr, "Wall time: %.3f\n", elapsed_time.count());
+	//fprintf(stderr, "Simulation ended after %f time\n", world::step_counter*world::timestep);
+	//fprintf(stderr, "Wall time: %.3f\n", elapsed_time.count());
 
 	//PAUSE();
 

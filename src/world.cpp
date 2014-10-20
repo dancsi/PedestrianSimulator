@@ -150,6 +150,7 @@ namespace world
 
 	void draw()
 	{
+#ifdef GRAPHICS
 		graphics::draw(dist_field_grad[0]);
 		graphics::draw(dist_field_grad[1]);
 
@@ -165,6 +166,7 @@ namespace world
 		{
 			graphics::draw(circle_t{ ped.x, ped.y, .3f }, ped.objective_color ? nvgRGBAf(0, 1, 0, .5) : nvgRGBAf(1, 0, 0, .5));
 		}
+#endif
 	}
 
 	struct astar_cmp

@@ -1,3 +1,5 @@
+#ifdef _DEBUG
+
 #include "perf.h"
 #include <stdio.h>
 #include <string.h>
@@ -177,3 +179,5 @@ void renderGraph(struct NVGcontext* vg, float x, float y, struct PerfGraph* fps)
 		nvgText(vg, x+w-3,y+1, str, NULL);
 	}
 }
+
+#endif

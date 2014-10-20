@@ -5,6 +5,7 @@
 #include "field.h"
 #include "geometry.h"
 
+#ifdef GRAPHICS
 #define NANOVG_GLEW
 #define GLEW_STATIC
 
@@ -14,9 +15,11 @@
 #define NANOVG_GL3_IMPLEMENTATION
 #include "nanovg_gl.h"
 #include "perf.h"
+#endif
 
 namespace graphics
 {
+#ifdef GRAPHICS
 	GLFWwindow* window;
 	int window_width, window_height;
 	int fb_width, fb_height;
@@ -25,6 +28,7 @@ namespace graphics
 	NVGcontext* vg = NULL;
 	GPUtimer gpu_timer;
 	PerfGraph fps_graph, cpu_graph, gpu_graph;
+#endif
 	double prev_time = 0, cpu_time = 0, render_start_time, delta_time = 1./60.0;
 
 	vecd_t mouse_pos;
@@ -232,21 +236,29 @@ namespace graphics
 
 	vec_t world2screen(vec_t v)
 	{
+#ifdef GRAPHICS
 		float transform[6];
 		nvgCurrentTransform(vg, transform);
 		vec_t ret;
 		nvgTransformPoint(&ret.x, &ret.y, transform, v.x, v.y);
 		return ret;
+#else
+		return v;
+#endif
 	}
 
 	vec_t screen2world(vec_t v)
 	{
+#ifdef GRAPHICS
 		float transform[6], itransform[6];
 		nvgCurrentTransform(vg, transform);
 		nvgTransformInverse(itransform, transform);
 		vec_t ret;
 		nvgTransformPoint(&ret.x, &ret.y, itransform, v.x, v.y);
 		return ret;
+#else
+		return v;
+#endif
 	}
 
 }
