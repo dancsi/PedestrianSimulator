@@ -26,22 +26,23 @@ int main(int argc, char** argv)
 
 	auto start_time = chrono::high_resolution_clock::now();
 
-	world::add_objective({ { 101.5, 20.1 }, 1 });
-	world::add_objective({ { 11, 26.6 }, 0 });
+	//world::add_objective({ { 101.5, 20.1 }, 1 });
+	world::add_objective({ { 45, 20 }, 0 });
 	atexit(world::destroy);
 
 
-	while (!graphics::should_exit() && world::people_left)
+	while (!graphics::should_exit() && world::people_left && world::step_counter <= world::allowed_steps)
 	{
 		++world::step_counter;
-		graphics::begin_frame();
 		world::step(world::timestep);
+		graphics::begin_frame();
 		world::draw();
 		graphics::end_frame();
 	}
 	auto end_time = chrono::high_resolution_clock::now();
 	chrono::duration<double> elapsed_time = end_time - start_time;
 
+	if (world::step_counter > world::allowed_steps) world::step_counter = INT_MAX;
 	printf("%d\n", world::step_counter);
 	fprintf(stderr, "Simulation ended after %f time\n", world::step_counter*world::timestep);
 	fprintf(stderr, "Wall time: %.3f\n", elapsed_time.count());

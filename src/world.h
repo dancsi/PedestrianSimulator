@@ -14,7 +14,7 @@ namespace world
 	extern vec_field_t dist_field_grad[2];
 	extern std::vector<objective_t> objectives;
 	extern std::vector<line_t> walls;
-	extern int step_counter;
+	extern int step_counter, allowed_steps;
 
 	void init();
 	void read_walls(std::string fname);

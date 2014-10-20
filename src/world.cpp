@@ -27,7 +27,7 @@ namespace world
 	matrix_t<vector<pair_t>> neighbours;
 	grid_t people, inactive_people;
 	vector<line_t> walls;
-	int world::step_counter = 0;
+	int world::step_counter = 0, world::allowed_steps;
 	FILE *f_statistics = fopen("logs\\statistics.txt", "w");
 
 	void init()
@@ -37,6 +37,7 @@ namespace world
 		float spacing = config::get<double>("world", "spacing");
 
 		timestep = config::get<double>("simulation", "timestep");
+		allowed_steps = config::get<int>("simulation", "allowed_steps");
 		nerv = config::get<double>("pedestrian", "nervousness");
 		dyn_field = config::get<double>("pedestrian", "dynamic_field_constant");
 		dyn_field_radius = config::get<double>("pedestrian", "dynamic_field_radius");
@@ -152,6 +153,10 @@ namespace world
 		graphics::draw(dist_field_grad[0]);
 		graphics::draw(dist_field_grad[1]);
 
+		for (line_t& wall : walls)
+		{
+			graphics::draw(wall, nvgRGBAf(0, 0, 1, .5));
+		}
 		for (objective_t obj : objectives)
 		{
 			graphics::draw(circle_t{ obj.x, obj.y, .5 }, obj.color ? nvgRGBAf(0, 1, 0, .5) : nvgRGBAf(1, 0, 0, .5));
@@ -159,10 +164,6 @@ namespace world
 		for (ped_t ped : world::people)
 		{
 			graphics::draw(circle_t{ ped.x, ped.y, .3f }, ped.objective_color ? nvgRGBAf(0, 1, 0, .5) : nvgRGBAf(1, 0, 0, .5));
-		}
-		for (line_t& wall : walls)
-		{
-			graphics::draw(wall, nvgRGBAf(0, 0, 1, .5));
 		}
 	}
 
@@ -314,6 +315,7 @@ namespace world
 	{
 		for (ped_t& ped : people)
 		{
+			if (ped.arrived_at_destination) continue;
 			ped.acc = { 0, 0 };
 			ped.alpha = atan2(ped.v.x, ped.v.y);
 			vec_t preferred_field = dist_field_grad[ped.objective_color].interpolate(ped, visible);
@@ -396,6 +398,7 @@ namespace world
 
 		for (ped_t& ped : people)
 		{
+			if (ped.arrived_at_destination) continue;
 			vec_t newpos = ped + ped.v*dt + 0.5*ped.acc*dt*dt;
 			//brzina mora da se uveca za a*dt, jer u narednim redovima oduzimam neke projekcije od nje
 			ped.v = ped.v + ped.acc*dt;

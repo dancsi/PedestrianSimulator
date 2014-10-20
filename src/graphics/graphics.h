@@ -1,6 +1,8 @@
 #pragma once
 
-//#define GRAPHICS
+#ifdef _DEBUG
+#define GRAPHICS
+#endif
 
 #include "vec.h"
 #include "field.h"
