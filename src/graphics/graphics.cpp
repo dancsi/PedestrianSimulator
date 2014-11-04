@@ -143,8 +143,8 @@ namespace graphics
 	{
 #ifdef GRAPHICS
 		draw_ui_scale();
-		renderGraph(vg, 5, 5, &fps_graph);
-		renderGraph(vg, 5 + 200 + 5, 5, &cpu_graph);
+		//renderGraph(vg, 5, 5, &fps_graph);
+		//renderGraph(vg, 5 + 200 + 5, 5, &cpu_graph);
 		if (gpu_timer.supported)
 			renderGraph(vg, 5 + 200 + 5 + 200 + 5, 5, &gpu_graph);
 		draw_world_scale();
@@ -258,6 +258,45 @@ namespace graphics
 		return ret;
 #else
 		return v;
+#endif
+	}
+
+	void dump_frame()
+	{
+#ifdef GRAPHICS
+		int i, j;
+		FILE *fptr;
+		static int counter = 0; /* This supports animation sequences */
+		char fname[32];
+		int width = fb_width, height = fb_height;
+		unsigned char *image = new unsigned char[3*width*height];
+
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+		sprintf(fname, "C_%04d.ppm", counter);
+		if ((fptr = fopen(fname, "wb")) == NULL) {
+			fprintf(stderr, "Failed to open file for window dump\n");
+			return;
+		}
+
+		/* Copy the image into our buffer */
+		glReadBuffer(GL_FRONT);
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+		/* Write the raw file */
+		fprintf(fptr,"P6 %d %d 255 ",width,height);
+		for (j = height - 1; j >= 0; j--) {
+			for (i = 0; i < width; i++) {
+				fputc(image[3 * j*width + 3 * i + 0], fptr);
+				fputc(image[3 * j*width + 3 * i + 1], fptr);
+				fputc(image[3 * j*width + 3 * i + 2], fptr);
+			}
+		}
+		fclose(fptr);
+
+		/* Clean up */
+		counter++;
+		delete image;
 #endif
 	}
 
