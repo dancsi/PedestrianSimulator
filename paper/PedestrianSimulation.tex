@@ -1,5 +1,6 @@
 \documentclass[12pt]{article}
 
+\usepackage{amsmath}
 \usepackage{epsfig}
 \usepackage{lmodern}
 \usepackage[utf8]{inputenc} 
@@ -48,12 +49,32 @@ Rad je organizovan na sledeći način: u prvoj sekciji ćemo predstaviti model s
 \section{Model socijalnih sila sa statičkim poljem}
 \label{sile}
 
-Jedan od predloženih modela za ponašanje pešaka je model socijalnih sila (eng. \emph{social forces model}), prvi put predstavljen u \cite{Helbing1994}.
+Jedan od predloženih modela za ponašanje pešaka je model socijalnih sila (eng. \emph{social forces model}), prvi put predstavljen u \citep{Helbing1994}.
 
     \subsection{Socijalne sile}
     % sledi opis sila koje potiču samo od međusobne interakcije pešaka sa drugim pešacima i okolinom.
-    \subsection{Statičko polje i računanje preferiranog pravca kretanja}
-    %ovo cu ja da pisem, sa diskretizacijom i interpolacijom
+    \subsection{Polje preferiranog pravca kretanja}
+    Do sada je bilo reči samo o silama koje potiču iz međusobne interakcije pešaka sa drugim pešacima i preprekama. Međutim, kada bi to bile jedine sile koje deluju na pešake, jasno je da bi simulirani događaji bili daleko od realne situacije, jer pešaci nemaju nikakvo znanje o tome kuda bi trebali da idu. Zato, umesto da za svakog pešaka u svakom koraku računamo gde mu je najbliži cilj, uveli smo \emph{vektorsko polje preferiranog pravca}, koje u svakoj tački pokazuje kuda bi pešak trebao da se kreće da što pre stigne do najbližeg cilja. Nešto slično ovome se javljalo u radovima koji opisuju simuliranje pešaka pomoću dvodimenzionalnih celularnih automata (na primer, \citep{Burstedde2001}), ali ovaj rad je prvi pokušaj kombinovanja takvog polja sa modelom socijalnih sila. Konkretno reč je zapravo o dva polja, statičkom i dinamičkom.
+    \begin{description}
+        \item[Statičko polje] je konstantno tokom celog izvršavanja simulacije, i u svakoj tački pokazuje u smeru najbližeg cilja.
+        \item[Dinamičko polje] predstavljaja to što će se pešak kretati tamo kuda se kreću okolni pešaci. Pokazuje u smeru vektorskog zbira brzina okolnih pešaka (onih koji se nalaze unutar neke kružnice unapred definisanog poluprečnika)
+    \end{description}
+    U ostatku ovog dela ćemo opisati kako izračunati dinamičko polje i predstaviti ga u obliku pogodnom za korišćenje u ostatku simulacije. 
+    
+    Primetimo da je dovoljno izračunati polje u konačno mnogo (dovoljno gusto raspoređenih) tačaka, i interpolirati njegovu vrednost u ostalim tačkama. Ukoliko su tačke - čvorovi raspoređeni u kvadratnu mrežu, vrednost polja u tački $\mathbf r = (x,y)$ možemo interpolirati na sledeći način:
+    
+    $$
+    	f_\text{static} (\mathbf r) = \sum_{\text{postoji čvor na poziciji } \mathbf v} e^{-|v-r|^2} f_\text{static} (\mathbf v)
+    $$
+	
+	Takođe primetimo da će sabirci $e^{-|v-r|^2} f_\text{static} (\mathbf v)$ biti zanemarljivo mali za sve osim za najbliže čvorove $\mathbf v$, tako da za potrebe simulacije aproksimiramo $f_\text{static} (\mathbf r)$ sa 4 čvora - temena kvadrata najbliža tački $\mathbf r$. Ukoliko je polje u računaru predstavljeno matricom, ta 4 čvora se mogu odrediti u konstantnom vremenu.
+	
+	Sada možemo proširiti naš model sa ove dve sile, tako da je
+	$$
+		f_\text{total} = f_\text{social} + f_\text{static} + f_\text{dynamic}
+	$$
+	
+	     
     \subsection{Uočeni fenomeni}
     %ovo bi mogao ti, najvise si vremena proveo sa time
     
@@ -75,9 +96,9 @@ Tok algoritma je sledeći:
 \item Koraci 2 - 5 se ponavljaju dok populacija ne konvergira ili se izračuna određeni unapred zadati broj generacija
 \end{enumerate}
 
-Ovaj postupak je u velikoj meri tačan i za sve ostale genetske algoritme, i ostavlja mnogo prostora za slobodnu interpretaciju. Zato ćemo u sledećem delu dati konkretnu reprezentaciju jedne jedinke, kao i opise korišćenih genetskih operatora (selekcije, ukrštanja i mutacije).
+Ovaj postupak je u velikoj meri tačan i za sve ostale genetske algoritme, i ostavlja mnogo prostora za slobodnu interpretaciju. Zato ćemo u sledećem delu dati konkretnu reprezentaciju jedne jedinke, kao i opise korišćenih genetskih operatora (selekcije, ukrštanja i mutacije). U radu su korišćena dva različita načina za predstavljanje prepreka: polarni $n$-tougao i kvadratna rešetka.
 
-\subsection*{Genetski operatori}
+\subsection{Genetski operatori - $n$-tougao}
 
 Svaka jedinka - mnogougao ima fiksiran broj ivica, $n$, i parametrizovan je sa $n$ realnih brojeva, $(r_0, r_1, \dots, r_{n-1})$. Temena tog mnogougla su tačke
 $$\left(r_i \cos\left(\frac{2\pi i}{n}\right), r_i \sin\left(\frac{2\pi i}{n}\right)\right), \qquad i=0,\dots,n-1,$$
@@ -85,10 +106,44 @@ translirane na odgovarajuće mesto, ispred izlaza iz prostorije. Sa jedne strane
 
 \begin{description}
 \item[Selekcija] je primitivna, i prosto izbacuje sve jedinke sa fitness-om koji je više od 5 puta manji od najbolje jedinke. Konstanta 5 je odabrana proizvoljno i služi za odbacivanje onih prepreka koje u potpunosti blokiraju izlaz, i čije odgovarajuće jedinke imaju fitness 0.
-\item[Ukrštanje] dve jedinke $r^a = (r^a_0, r^a_1, \dots, r^a_{}n-1)$ i $r^b=$ je sekvencijalno: Bira se proizvoljna početna pozicija $p$, $0\leq p < n$ i dužina $l$, $0 < l < n $. Nova jedinka 
+\item[Ukrštanje] dve jedinke 
+$$r^a = (r^a_0, r^a_1, \dots, r^a_{n-1}) \text{ i } r^b=(r^b_0, r^b_1, \dots, r^b_{n-1})$$ je sekvencijalno: Bira se proizvoljna početna pozicija $p$, $0\leq p < n$ i dužina $l$, $0 < l < n $. Nova jedinka $r = (r_0, r_1, \dots, r_{n-1})$ je definisana na sledeći način:
+$$
+r_i = 
+\begin{cases}
+    r^a_i & \text{za } i=p, p+1, \dots, p+l-1\\
+    r^b_i & \text{inače}
+\end{cases}.
+$$
+Pri tome je $r^a_i = r^a_{i-n}$, za $i\geq n$.
+\item[Mutacija] sa malom verovatnoćom na proizvoljan način bira jednu od komponenata vektora jedinke i množi je sa slučajnom promenljivom $x$, koja ima Gausovu raspodelu sa centrom u 1.
 \end{description}
 
-\subsection{}
+\subsection{Genetski operatori - rešetka}
+
+Za slučaj da se optimalno rešenje ne može predstaviti u gorenavedenom obliku, implementirali smo i alternativno predstavljanje prepreke, kao kvadratne rešetke $n\times n$ fiksiranih dimenzija (u smislu dužine i širine u simuliranom svetu), koja ima neka prohodna i neka neprohodna polja. Jedinka je predstavljena kvadratnom matricom $(b_{ij})$, gde je
+$$
+b_{ij} = 
+\begin{cases}
+    0 & \text{ako je polje prohodno}\\
+    1 & \text{ako nije}
+\end{cases}
+$$
+
+Genetski operatori su sledeći:
+\begin{description}
+\item[Selekcija] je ista kao u prethodnom slučaju, jer je nezavisna od reprezentacije jedinke.
+\item[Ukrštanje] jedinki $(b^a_{ij})$ i $(b^b_{ij})$:
+$$
+b_{ij} = 
+\begin{cases}
+    b^a_{ij} & \text{sa verovatnoćom } \frac{f_a}{f_a+f_b}\\
+    b^b_{ij} & \text{sa verovatnoćom } \frac{f_b}{f_a+f_b}
+\end{cases},
+$$
+pri čemu su $f_a$ i $f_b$ fitness funkcije prve i druge jedinke, redom. Primetimo da ako je $ b^a_{ij} = b^b_{ij}$, tada će biti i $b_{ij} = b^a_{ij} = b^b_{ij}$.
+\item[Mutacija]: sa malom verovatnoćom, neko od neprohodnih polja na ivici prepreke postaje prohodno.
+\end{description}
 
 \section{Rezultati}
 
