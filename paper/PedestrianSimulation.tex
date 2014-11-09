@@ -7,9 +7,12 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage[serbian]{babel}
+\usepackage{natbib}
 
 %--- Color --------------------------------------------------------------
 \usepackage[usenames]{color}
+
+%\setcounter{secnumdepth}{1}
 
 \begin{document}
 
@@ -33,13 +36,66 @@ Nema abstrakta
 
 \section{Uvod}
 
-\section{Model socijalnih sila}
+%ovde treba kao neki opšti uvod
+Metode koje se koriste u fizici se već duže vreme uspešno primenjuju u  modeliranju motornog saobraćaja. S druge strane, pešački saobraćaj, a posebno ponašanje ljudi u situacijama prilikom kojih vlada panika izdvojeno kao posebna oblast istraživanja, nije u većoj meri proučavano na ovaj način. Iako su određeni kompjuterski modeli već razvijeni, istraživanjem ponašanja ljudi u paničnim situacijama bave  se većinom sociolozi i psiholozi i ta istraživanja su empirijske prirode. Kako se u današnje vreme organizuje sve više događaja kojima prisustvuje sve veći broj ljudi, takva istraživanja dobijaju na značaju. Međutim, kako je gotovo nemoguće izvesti ogled u kom se reprodukuju panične situacije, dostupni podaci za istraživanja se svode na video snimke koji su često lošeg kvaliteta i nema ih u velikom broju. Stoga, razvijanje modela koji bi verodostojno simulirao ponašanje ljudi u paničnim situacijama, poput evakuacije, bi bilo od velikog značaja. Cilj ovog rada je upravo razvijanje jednog takvog modela.
 
-Jedan od predloženih modela za ponašanje pešaka je model socijalnih sila (eng. \textit{social forces model}), prvi put predstavljen u 
+Razvijeni model baziran je na modelu socijalnih sila, uz predložen novi metod za računanje preferiranog pravca i smera kretanja pešaka. Detaljan opis modela dat je u sekciji \ref{sile}. Koristeći razvijeni model uočeni su mnogi kolektivni fenomeni karakteristični za ponašanje ljudi u paničnim situacijama poput stvaranja uskih grla ili gomilanja ljudi na proširenjima. Pregled uočenih kolektivnih fenomena dat je u odeljku \ref{fenomeni}. 
 
-\section{}
+Drugi deo našeg rada posvećen je korišćenju razvijenog modela za testiranje i optimizaciju pečaćkih zona. Konkretno, pomoću razvijenog genetičkog algoritma i modela dat je optimalan oblik prepreke na izlazu iz prostorije za koju je vreme evakuacije minimalno. Opis razvijenog genetičkog algoritma dat je u sekciji \ref{GA}. 
 
-\bibliographystyle{apalike}  % tells LaTeX show the bibliography should be formatted
+Rad je organizovan na sledeći način: u prvoj sekciji ćemo predstaviti model socijalnih sila, preuzet najvećim delom iz \citep{Helbing1998} i \citep{Helbing2002}, kao neke od uočenih fenomena, koji se javljaju i u stvarnom životu. U drugom delu ćemo opisati naš originalan doprinos, genetski algoritam za određivanje optimalnog oblika prepreke na izlazu iz prostorije, za koje je ukupno vreme evakuacije minimalno. U trećem delu ćemo predstaviti kvantitativne i kvalitativne rezultate dobijene genetskim algoritmom, kao i samom simulacijom. U zaključku dajemo pregled najvažnijih zapažanja, i neke smernice za dalja istraživanja.
+
+\section{Model socijalnih sila sa statičkim poljem}
+\label{sile}
+
+Jedan od predloženih modela za ponašanje pešaka je model socijalnih sila (eng. \emph{social forces model}), prvi put predstavljen u \cite{Helbing1994}.
+
+    \subsection{Socijalne sile}
+    % sledi opis sila koje potiču samo od međusobne interakcije pešaka sa drugim pešacima i okolinom.
+    \subsection{Statičko polje i računanje preferiranog pravca kretanja}
+    %ovo cu ja da pisem, sa diskretizacijom i interpolacijom
+    \subsection{Uočeni fenomeni}
+    %ovo bi mogao ti, najvise si vremena proveo sa time
+    
+    \label{fenomeni}
+
+\section{Genetski algoritam}\label{GA}
+
+Ranije smo spomenuli da se vreme evakuacije smanjuje ukoliko se na izlaz iz prostorije postavi nekakva prepreka, koja će da razbije i podeli bujicu pešaka. Ipak, nigde u literaturi nije specificirano koji je zapravo optimalan oblik te prepreke, već je korišćen oblik koji po autorovoj intuiciji daje najbolje rezultate. Ali, s obzirom na to da je sama ideja postavljanja prepreke donekle kontraintuitivna, glavni doprinos ovog rada je algoritamsko određivanje tog oblika.
+
+S obzirom na to da ne možemo da ispitamo svaki mogući oblik (ima ih beskonačno mnogo), moramo se zadovoljiti približnim rešavanjem datog problema. Genetski algoritmi su jedna od klasa algoritama pogodnih baš za tu svrhu - optimizaciju neke \emph{fitness funkcije} (vremena izlaska) na nekom domenu, tzv \emph{prostoru pretraživanja} (u našem slučaju, skupu svih mogućih poligona u ravni).
+
+Tok algoritma je sledeći:
+\begin{enumerate}
+\item Na slučajan način se generiše početni skup rešenja (\emph{jedinki}, na terminologiji genetskih algoritama) - poligona u ravni
+\item Za svaku jedinku se pokrene simulacija sa tim poligonom kao preprekom na izlazu. Fitness te jedinke je recipročna vrednost ukupnog simuliranog vremena potrebnog za evakuaciju svih pešaka.
+\item Sve jedinke (\emph{populacija}) se sortiraju prema fitness-u i "loše" jedinke sa malim fitness-om (prevelikim ukupnim vremenom izlask) se izbacuji iz populacije. Ovaj korak se u literaturi naziva \emph{selekcija}.
+\item Jedinke koje su opstale, učestvuju u procesu \emph{ukrštanja}: iz populacije se biraju parovi jedinki koje će se ukrstiti i dati novu jedinku - \emph{potomak}, nastalu kombinovanjem poligona svoja dva \emph{roditelja}. Verovatnoća da neka jedinka bude odabrana je srazmerna njenom fitness-u.
+\item Konačno, jedan deo jedinki u populaciji se dobija \emph{mutacijom} slučajno odabrane jedinke iz prethodne \emph{generacije}. Tako se u populaciju unosi mala količina raznovrsnosti, koja pomaže algoritmu da se ne zaustavi u nekom lokalnom optimumu.
+\item Koraci 2 - 5 se ponavljaju dok populacija ne konvergira ili se izračuna određeni unapred zadati broj generacija
+\end{enumerate}
+
+Ovaj postupak je u velikoj meri tačan i za sve ostale genetske algoritme, i ostavlja mnogo prostora za slobodnu interpretaciju. Zato ćemo u sledećem delu dati konkretnu reprezentaciju jedne jedinke, kao i opise korišćenih genetskih operatora (selekcije, ukrštanja i mutacije).
+
+\subsection*{Genetski operatori}
+
+Svaka jedinka - mnogougao ima fiksiran broj ivica, $n$, i parametrizovan je sa $n$ realnih brojeva, $(r_0, r_1, \dots, r_{n-1})$. Temena tog mnogougla su tačke
+$$\left(r_i \cos\left(\frac{2\pi i}{n}\right), r_i \sin\left(\frac{2\pi i}{n}\right)\right), \qquad i=0,\dots,n-1,$$
+translirane na odgovarajuće mesto, ispred izlaza iz prostorije. Sa jedne strane, uz dovoljno veliko $n$ se na ovaj način može aproksimirati većina nama "interesantnih" poligona, a sa druge, na ovakvoj reprezentaciji se mogu koristiti mnogi "klasični" genetski operatori iz literature, koji pretpostavljaju međusobnu nezavisnost pojedinačnih komponenti vektora koji predstavlja jednu jedinku.
+
+\begin{description}
+\item[Selekcija] je primitivna, i prosto izbacuje sve jedinke sa fitness-om koji je više od 5 puta manji od najbolje jedinke. Konstanta 5 je odabrana proizvoljno i služi za odbacivanje onih prepreka koje u potpunosti blokiraju izlaz, i čije odgovarajuće jedinke imaju fitness 0.
+\item[Ukrštanje] dve jedinke $r^a = (r^a_0, r^a_1, \dots, r^a_{}n-1)$ i $r^b=$ je sekvencijalno: Bira se proizvoljna početna pozicija $p$, $0\leq p < n$ i dužina $l$, $0 < l < n $. Nova jedinka 
+\end{description}
+
+\subsection{}
+
+\section{Rezultati}
+
+\section{Zaključak}
+
+
+\bibliographystyle{apalike}  
 \begin{scriptsize}
 \bibliography{bibliography}
 \end{scriptsize}
