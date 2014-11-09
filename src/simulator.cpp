@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 	auto start_time = chrono::high_resolution_clock::now();
 
 	//world::add_objective({ { 101.5, 20.1 }, 1 });
-	world::add_objective({ { 45, 20 }, 0 });
+	world::add_objective({ { 59, 50 }, 1 });
 	atexit(world::destroy);
 
 
