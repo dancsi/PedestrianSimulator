@@ -31,7 +31,7 @@ Ognjen Stanisavljević
 
 
 \begin{abstract}
-U ovom radu je predstavljen model za simuliranje ponašanja ljudi u situacijama evakuacije. Razvijeni model je baziran na modelu socijalnih sila, uz predložen novi način za računanje preferiranog pravca kretanja ljudi. Takođe, predstavljen je i genetski algoritam za optimizaciju pešačkih zona. Konkretno, re[avan je problem pronalaženja optimalnog oblika prepreke na izlazu iz prostorije za koju je vreme evakuacije najmanje. Nakon reprodukovanih fenomena uočenih u već dostupnim podacima 
+U ovom radu je predstavljen model za simuliranje ponašanja ljudi u situacijama evakuacije. Razvijeni model je baziran na modelu socijalnih sila, uz predložen novi način za računanje preferiranog pravca kretanja ljudi. Takođe, predstavljen je i genetski algoritam za optimizaciju pešačkih zona. Nakon reprodukovanih fenomena uočenih iz već dostupnih podataka, korišćenjem genetičkog algoritma rešavan je problem pronalaženja optimalnog oblika prepreke na izlazu za koju je vreme evakuacije minimalno. Prepreka na izlazu predstavljena je na dva načina - kao polarni \emph{n}-tougao i kvadratna rešetka u kojoj su određena polja neprohodna. Obe reprezentacije prepreke daju približno isti rezultat, uz smanjenje vremena evakuacije za približno 15\%.
 \end{abstract}
 
 %------------------------------------------------------------------------
@@ -123,7 +123,7 @@ Naci 4 sata je i to
 \begin{figure}
 \centering
 \includegraphics{UG} %treba malo obraditi slike i dati im nazive i labele
-\
+\caption{Stvaranje uskog grla na izlazu}
 \end{figure}
 
 Najprimetniji fenomen koji se javlja u paničnim situacijama je stvaranje uskih grla, odnosno gomilanje velikog broja ljudi na izlazima. Ovo je očeivano jer je osnovni cilj ljudi prilikom evakuacije da se sklone od opasnosti, dnosno napuste prostoriju.
@@ -133,23 +133,23 @@ Najprimetniji fenomen koji se javlja u paničnim situacijama je stvaranje uskih 
 \begin{figure}
 \centering
 \includegraphics{Guzva}
-\caption{Caption}
-\label{fig:my_label}
+\caption{Primer prosirenja na kom se stvorilo usko grlo}
+\label{fig:guzva}
 \end{figure}
 
-Ukoliko se u nekom hodniku nalazi proširenje, kao na slici refslike i preferirana brzina pešaka je dovoljno velika umesto očekivanog rasterećenja i ubrzavanja izlaska pešaka iz prostorije dolazi do stvaranja uskog grla. Ovaj fenomen se može objasniti time što na početku proširnja pešaci pokušavaju da prestignu jedni druge i tako se udaljavaju od glavnog toka. Kada na kraju proširenja pešaći ponovo pokušavaju da uđu u glavni tok dolazi do stvaranja uskog grla.
+Ukoliko se u nekom hodniku nalazi proširenje, kao na slici \ref{fig:guzva} i preferirana brzina pešaka je dovoljno velika umesto očekivanog rasterećenja i ubrzavanja izlaska pešaka iz prostorije dolazi do stvaranja uskog grla. Ovaj fenomen se može objasniti time što na početku proširnja pešaci pokušavaju da prestignu jedni druge i tako se udaljavaju od glavnog toka. Kada na kraju proširenja pešaći ponovo pokušavaju da uđu u glavni tok dolazi do stvaranja uskog grla.
 
 \item Evkuacija ljudi u malim grupama
 
 \begin{figure}
 \centering
 \includegraphics{SCGrupa1}
-\caption{Caption}
-\label{fig:my_label2}
+\caption{Začepljenje u obliku luka na izlazu i mala grupa pešaka koja je napustila prostoriju}
+\label{fig:grupa}
 \end{figure}
 
 
-Pri visokim preferiranim brzinama pešaka, njihov izlazak iz prostorije postaje neravnomeran, odnosno pešaci napuštaju prostoriju u izdvojenim malim grupama. Takođe, tada se na izlazu iz prostorije javlja začepljenje u obliku luka (takvo začepljenje je obeleženo na slici ref). Do formiranja začepljenja u obliku luka na izlazu dolazi usled međusobnog guranja pešaka i sile kojom deluju jedni na druge pri fizičkom kontaktu. Do izlaska male grupe pešaka iz prostorije dolazi pri "rušenju" luka na izlazu. Primećeno je na stvaranje lučnih začepljenja znatno veći uticaj ima širina izlaza nego preferirana brzina pešaka.
+Pri visokim preferiranim brzinama pešaka, njihov izlazak iz prostorije postaje neravnomeran, odnosno pešaci napuštaju prostoriju u izdvojenim malim grupama. Takođe, tada se na izlazu iz prostorije javlja začepljenje u obliku luka (takvo začepljenje je obeleženo na slici \ref{fig:grupa}). Do formiranja začepljenja u obliku luka na izlazu dolazi usled međusobnog guranja pešaka i sile kojom deluju jedni na druge pri fizičkom kontaktu. Do izlaska male grupe pešaka iz prostorije dolazi pri "rušenju" luka na izlazu. Primećeno je na stvaranje lučnih začepljenja znatno veći uticaj ima širina izlaza nego preferirana brzina pešaka.
 
 \item Zanemarivanje slobodnih izlaza
 
@@ -235,26 +235,59 @@ Sa kvalitativne strane, rezultati se ponovo dele na dve grupe: oni dobijeni iz p
 
 Iz  prve grupe su reprezentativni grafici zavisnosti evakuisanih pešaka od vremena, sa kojih se mogu uočiti fenomeni poput napuštanja prostorije u mailm grupama. Takođe pokretanjem pojedinačne simulacije je potvrđena i hipoteza da prisustvo prepreke na izlazu smanjuje vreme izlaska iz prostorije.
 
-% slika grafika zavisnosti broja pesaka od vremena
-% slike terena sa preprekom i njegovo vreme izlaska, i teren bez prepreke i njegovo vreme
+\begin{figure}
+\centering
+\includegraphics[scale=.6]{Vreme.png}
+\end{figure}
 
 Daleko su interesantniji rezutati dobijeni genetskim algoritmom, iz kojih smo videli da genetski algoritam konvergira, i da može da se primeni na dati problem. Predstavljamo rezultate genetskog algoritma za obe reprezentacije jedinki. Ukoliko drugačije nije naglašeno, genetski algoritam se izvršavao kroz 50 generacija, sa 20 jedinki.
 
-%slika početnog terena sa regijom gde se spawnuju pesaci
+\begin{figure}
+\centering
+\includegraphics{prostorija}
+\caption{Prostorija odakle se evakuišu pešaci. Njihove početne pozicije su unutar zelene regije, a crvena tačka na izlazu predstavlja njehov cilj, ka kome se kreću. Mala osenčena regija pred izlazom predstavlja prostor gde će se nalaziti prepreka}
+\label{fig:prostorija1}
+\end{figure}
+
+Za scenario sa slike \ref{fig:prostorija1}, pešacima je bez prepreke potrebno 650 simuliranih vremenskih jedinica da se u potpunosti evakuišu. Sledi predstavljanje rezultata dve varijante genetskog algoritma.
 
 \subsection*{Polarni mnogouglovi}
 
-% grafik konvergencije najboljeg resenja za razlicite seedove
-% slika optimalnog (ih?) resenja
+\begin{figure}
+\centering
+\includegraphics[scale=.6]{polygon-plot}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{polygon2}
+\caption{Oblik dobijen genetskim algoritmom}
+\label{fig:polygon2}
+\end{figure}
+
+Iako ne možemo jasno razaznati koji je "pravilni" geometrijski oblik aproksimiran ovim poligonom, primetimo da je poboljšanje u ovom slučaju $23\%$.
 
 \subsection*{Kvadratna rešetka} 
 
-% grafik konvergencije najboljeg i najgoreg rezultata
-% slika optimalnog resenja
+\begin{figure}
+\centering
+\includegraphics[scale=.6]{grid-plot}
+\end{figure}
 
-Iako razlike u oba slučaja nisu prevelike, u kritičnim situacijama (požar, ...) su i najmanja ubrzanja procesa evakuacije uvek dobrodošla, pa je stoga opravdano postavljati ovakvu prepreku na izlazu iz neke prostorije.
+\begin{figure}
+\centering
+\includegraphics{grid1}
+\caption{Oblik dobijen genetskim algoritmom}
+\label{fig:polygon2}
+\end{figure}
 
-Autori nemaju objašnjenje zašto rešenja dobijena algoritmom izgledaju baš tako, ali je moguće da oni ukazuju na neophodnost postavljanja dve prepreke-stuba za dostizanje još boljih rezultata. Nažalost, zbog ograničenog vremena ta hipoteza nije proverena.
+U slučaju kvadratne rešetke dobijamo još bolje rešenje nego u slučaju polarnog poligona (431 naspram 503), sa ukupnim poboljšanjem od $34\%$.
+
+Genetski algoritam je pokretan sa različitim početnim parametrima generatora slučajnih brojeva, ali te izmene nisu dale značajne promene (svega par vremenskih jedinica) u konačnom rezultatu.
+
+Konačno, iako razlike u oba slučaja nisu prevelike, u kritičnim situacijama (požar, ...) su i najmanja ubrzanja procesa evakuacije uvek dobrodošla, pa je stoga opravdano postavljati ovakvu prepreku na izlazu iz neke prostorije.
+
+Autori nemaju objašnjenje zašto rešenja dobijena algoritmom izgledaju baš tako, ali je moguće da oni ukazuju na neophodnost ispitivanja ponašanja algoritma pri variranju nekih njegovih drugih komponenti (na primer, generacija početnih rešenja u slučaju rešetke). Nažalost, zbog ograničenog vremena ta hipoteza nije proverena.
 
 Još jedna mogućnost jeste implementacija dvoslojnog genetskog algoritma, u kojoj se rezultati iz različitih pokretanja genetskog algoritma koriste kao početna populacija za još jedno izvršavanje algoritma. Na taj način je moguće da će doći do ukrštanja lokalnih optimuma, i eventualnog pronalaska globalnog.
 
