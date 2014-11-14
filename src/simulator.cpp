@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 		graphics::begin_frame();
 		world::draw();
 		graphics::end_frame();
-		graphics::dump_frame();
+		//graphics::dump_frame();
 	}
 	auto end_time = chrono::high_resolution_clock::now();
 	chrono::duration<double> elapsed_time = end_time - start_time;

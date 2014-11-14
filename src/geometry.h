@@ -10,12 +10,21 @@
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/within.hpp>
+
 struct line_t
 {
 	vec_t p, q;
 };
 
 BOOST_GEOMETRY_REGISTER_SEGMENT(line_t, vec_t, p, q);
+
+struct lined_t
+{
+	vecd_t p, q;
+	lined_t(line_t& l) : p(vecd_t{ l.p.x, l.p.y }), q(vecd_t{l.q.x, l.q.y}){}
+};
+
+BOOST_GEOMETRY_REGISTER_SEGMENT(lined_t, vecd_t, p, q);
 
 bool project(vec_t point, line_t line, vec_t& proj);
 

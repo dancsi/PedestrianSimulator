@@ -31,7 +31,7 @@ Ognjen Stanisavljević
 
 
 \begin{abstract}
-U ovom radu je predstavljen model za simuliranje ponašanja ljudi u situacijama evakuacije. Razvijeni model je baziran na modelu socijalnih sila, uz predložen novi način za računanje preferiranog pravca kretanja ljudi. Takođe, predstavljen je i genetski algoritam za optimizaciju pešačkih zona. Nakon reprodukovanih fenomena uočenih iz već dostupnih podataka, korišćenjem genetičkog algoritma rešavan je problem pronalaženja optimalnog oblika prepreke na izlazu za koju je vreme evakuacije minimalno. Prepreka na izlazu predstavljena je na dva načina - kao polarni \emph{n}-tougao i kvadratna rešetka u kojoj su određena polja neprohodna. Obe reprezentacije prepreke daju približno isti rezultat, uz smanjenje vremena evakuacije za približno 15\%.
+U ovom radu je predstavljen model za simuliranje ponašanja ljudi u situacijama evakuacije. Razvijeni model je baziran na modelu socijalnih sila, uz predložen novi način za računanje preferiranog pravca kretanja ljudi. Takođe, predstavljen je i genetski algoritam za optimizaciju pešačkih zona. Nakon reprodukovanih fenomena uočenih iz već dostupnih podataka, korišćenjem genetičkog algoritma rešavan je problem pronalaženja optimalnog oblika prepreke na izlazu za koju je vreme evakuacije minimalno. Prepreka na izlazu predstavljena je na dva načina - kao polarni \emph{n}-tougao i kvadratna rešetka u kojoj su određena polja neprohodna. Obe reprezentacije prepreke daju približno isti rezultat, uz smanjenje vremena evakuacije za približno 35\%. 
 \end{abstract}
 
 %------------------------------------------------------------------------
@@ -130,7 +130,7 @@ Najprimetniji fenomen koji se javlja u paničnim situacijama je stvaranje uskih 
 
 \item Stvaranje uskog grla na proširenjima
 
-\begin{figure}
+\begin{figure}[hb]
 \centering
 \includegraphics{Guzva}
 \caption{Primer prosirenja na kom se stvorilo usko grlo}
@@ -271,14 +271,14 @@ Iako ne možemo jasno razaznati koji je "pravilni" geometrijski oblik aproksimir
 
 \begin{figure}
 \centering
-\includegraphics[scale=.6]{grid-plot}
+\includegraphics[scale=.6]{Grid-plot}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics{grid1}
 \caption{Oblik dobijen genetskim algoritmom}
-\label{fig:polygon2}
+\label{fig:grid1}
 \end{figure}
 
 U slučaju kvadratne rešetke dobijamo još bolje rešenje nego u slučaju polarnog poligona (431 naspram 503), sa ukupnim poboljšanjem od $34\%$.
