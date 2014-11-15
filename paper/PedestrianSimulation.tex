@@ -11,6 +11,9 @@
 \usepackage{natbib}
 \usepackage{gensymb}
 
+\input glyphtounicode
+\pdfgentounicode=1
+
 %--- Color --------------------------------------------------------------
 \usepackage[usenames]{color}
 
@@ -31,7 +34,7 @@ Ognjen Stanisavljević
 
 
 \begin{abstract}
-U ovom radu je predstavljen model za simuliranje ponašanja ljudi u situacijama evakuacije. Razvijeni model je baziran na modelu socijalnih sila, uz predložen novi način za računanje preferiranog pravca kretanja ljudi. Takođe, predstavljen je i genetski algoritam za optimizaciju pešačkih zona. Nakon reprodukovanih fenomena uočenih iz već dostupnih podataka, korišćenjem genetičkog algoritma rešavan je problem pronalaženja optimalnog oblika prepreke na izlazu za koju je vreme evakuacije minimalno. Prepreka na izlazu predstavljena je na dva načina - kao polarni \emph{n}-tougao i kvadratna rešetka u kojoj su određena polja neprohodna. Obe reprezentacije prepreke daju približno isti rezultat, uz smanjenje vremena evakuacije za približno 35\%. 
+U ovom radu je predstavljen model za simuliranje ponašanja ljudi u situacijama evakuacije. Razvijeni model je baziran na modelu socijalnih sila, uz predložen novi način za računanje preferiranog pravca kretanja ljudi. Takođe, predstavljen je i genetski algoritam za optimizaciju pešačkih zona. Nakon reprodukovanih fenomena uočenih iz već dostupnih podataka, korišćenjem genetskog algoritma rešavan je problem pronalaženja optimalnog oblika prepreke na izlazu za koju je vreme evakuacije minimalno. Prepreka na izlazu predstavljena je na dva načina - kao polarni \emph{n}-tougao i kvadratna rešetka u kojoj su određena polja neprohodna. Obe reprezentacije prepreke daju približno isti rezultat, uz smanjenje vremena evakuacije od 23 do 34\%. 
 \end{abstract}
 
 %------------------------------------------------------------------------
@@ -39,13 +42,13 @@ U ovom radu je predstavljen model za simuliranje ponašanja ljudi u situacijama 
 \section{Uvod}
 
 %ovde treba kao neki opšti uvod
-Metode koje se koriste u fizici se već duže vreme uspešno primenjuju u  modeliranju motornog saobraćaja. S druge strane, pešački saobraćaj, a posebno ponašanje ljudi u situacijama prilikom kojih vlada panika izdvojeno kao posebna oblast istraživanja, nije u većoj meri proučavano na ovaj način. Iako su određeni kompjuterski modeli već razvijeni, istraživanjem ponašanja ljudi u paničnim situacijama bave  se većinom sociolozi i psiholozi i ta istraživanja su empirijske prirode. Kako se u današnje vreme organizuje sve više događaja kojima prisustvuje sve veći broj ljudi, takva istraživanja dobijaju na značaju. Međutim, kako je gotovo nemoguće izvesti ogled u kom se reprodukuju panične situacije, dostupni podaci za istraživanja se svode na video snimke koji su često lošeg kvaliteta i nema ih u velikom broju. Stoga, razvijanje modela koji bi verodostojno simulirao ponašanje ljudi u paničnim situacijama, poput evakuacije, bi bilo od velikog značaja. Cilj ovog rada je upravo razvijanje jednog takvog modela.
+Metode koje se koriste u fizici se već duže vreme uspešno primenjuju u  modeliranju motornog saobraćaja. S druge strane, pešački saobraćaj (a posebno ponašanje ljudi u situacijama prilikom kojih vlada panika), nije u većoj meri proučavan na ovaj način. Iako su određeni kompjuterski modeli već razvijeni, istraživanjem ponašanja ljudi u paničnim situacijama bave  se većinom sociolozi i psiholozi i ta istraživanja su empirijske prirode. Kako se u današnje vreme organizuje sve više događaja kojima prisustvuje sve veći broj ljudi, takva istraživanja dobijaju na značaju. Međutim, kako je gotovo nemoguće izvesti ogled u kom se reprodukuju panične situacije, dostupni podaci za istraživanja se svode na video snimke koji su često lošeg kvaliteta i nema ih u velikom broju. Stoga, razvijanje modela koji bi verodostojno simulirao ponašanje ljudi u paničnim situacijama, poput evakuacije, bi bilo od velikog značaja. Cilj ovog rada je upravo razvijanje jednog takvog modela.
 
 Razvijeni model baziran je na modelu socijalnih sila, uz predložen novi metod za računanje preferiranog pravca i smera kretanja pešaka. Detaljan opis modela dat je u sekciji \ref{sile}. Koristeći razvijeni model uočeni su mnogi kolektivni fenomeni karakteristični za ponašanje ljudi u paničnim situacijama poput stvaranja uskih grla ili gomilanja ljudi na proširenjima. Pregled uočenih kolektivnih fenomena dat je u odeljku \ref{fenomeni}. 
 
-Drugi deo našeg rada posvećen je korišćenju razvijenog modela za testiranje i optimizaciju pečaćkih zona. Konkretno, pomoću razvijenog genetičkog algoritma i modela dat je optimalan oblik prepreke na izlazu iz prostorije za koju je vreme evakuacije minimalno. Opis razvijenog genetičkog algoritma dat je u sekciji \ref{GA}. 
+Drugi deo našeg rada posvećen je korišćenju razvijenog modela za testiranje i optimizaciju pečaćkih zona. Konkretno, pomoću razvijenog genetskog algoritma i modela dat je optimalan oblik prepreke na izlazu iz prostorije za koju je vreme evakuacije minimalno. Opis razvijenog genetskog algoritma dat je u sekciji \ref{GA}. 
 
-Rad je organizovan na sledeći način: u prvoj sekciji ćemo predstaviti model socijalnih sila, preuzet najvećim delom iz \citep{Helbing1998} i \citep{Helbing2002}, kao neke od uočenih fenomena, koji se javljaju i u stvarnom životu. U drugom delu ćemo opisati naš originalan doprinos, genetski algoritam za određivanje optimalnog oblika prepreke na izlazu iz prostorije, za koje je ukupno vreme evakuacije minimalno. U trećem delu ćemo predstaviti kvantitativne i kvalitativne rezultate dobijene genetskim algoritmom, kao i samom simulacijom. U zaključku dajemo pregled najvažnijih zapažanja, i neke smernice za dalja istraživanja.
+Rad je organizovan na sledeći način: u prvoj sekciji ćemo predstaviti model socijalnih sila, preuzet najvećim delom iz \citep{Helbing1998} i \citep{Helbing2002}, kao i neke od uočenih fenomena, koji se javljaju i u stvarnom životu. U drugom delu ćemo opisati naš originalan doprinos, genetski algoritam za određivanje optimalnog oblika prepreke na izlazu iz prostorije, za koje je ukupno vreme evakuacije minimalno. U trećem delu ćemo predstaviti kvantitativne i kvalitativne rezultate dobijene genetskim algoritmom, kao i samom simulacijom. U zaključku dajemo pregled najvažnijih zapažanja, i neke smernice za dalja istraživanja.
 
 \section{Model socijalnih sila sa statičkim poljem}
 \label{sile}
@@ -54,7 +57,7 @@ Jedan od predloženih modela za ponašanje pešaka je model socijalnih sila (eng
 
     \subsection{Socijalne sile}
 
-Tokom izučavanja ljudskog ponašanja u paničnim situacijama predloženo je da se pojave koje utiču na kretanje ljudi imaju određenu analogiju sa poljima sila u fizici. Prema tome "sile" izazivaju kretanje pešaka nazvane su socijalnim silama. Socijalne sile ne predstavljaju uticaj okoline na telo pešaka, već motivaciju da se on kreće u određenom smeru, pa se pešak kreće kao da je pod uticajem neke spoljašnje sile. Na pešaka istovremeno može delovati više socijalnih sila. U tom slučakju, uticaji se sabiraju vektorski. Opis socijalnih sila koje mogu delovati na pešaka dat je ispod:
+Tokom izučavanja ljudskog ponašanja u paničnim situacijama predloženo je da pojave koje utiču na kretanje ljudi imaju određenu analogiju sa poljima sila u fizici. Prema tome ''sile'' koje izazivaju kretanje pešaka nazvane su socijalnim silama. Socijalne sile ne predstavljaju uticaj okoline na telo pešaka, već motivaciju da se on kreće u određenom smeru, pa se pešak kreće kao da je pod uticajem neke spoljašnje sile. Na pešaka istovremeno može delovati više socijalnih sila. U tom slučaju, uticaji se sabiraju vektorski. Opis socijalnih sila koje mogu delovati na pešaka dat je ispod:
 
 \begin{enumerate}
 
@@ -65,16 +68,16 @@ $$
 \mathbf{f_{p}}=\mathrm{A}\ \alpha\ e^{-Br^2}\mathbf{r_{norm}}
 $$
 
-gde su A i B konstante odabrane tako da model najpribližnije opisuje već poznate situacije, a r rastojanje između pešaka dok vektor $\mathbf{r_{norm}}$ pokazuje da je pravac delovanja sile pravac koji spaja pešake. Koeficijent $\alpha$ je jednak 1 ukoliko je ugao između pravca kretanja i pravca koji spaja pešake manji od 100\degree. U protivnom je jednak 0,5.
+gde su A i B konstante odabrane tako da model najpribližnije opisuje već poznate situacije, $\mathbf r$ rastojanje između pešaka, dok vektor $\mathbf{r_{norm}}$ pokazuje da je pravac delovanja sile pravac koji spaja pešake. Koeficijent $\alpha$ je jednak 1 ukoliko je ugao između pravca kretanja i pravca koji spaja pešake manji od 100\degree. U protivnom je jednak 0,5.
 
 
 \item Odbojne sile prepreka
 
-Pešak teži da održava određenu rastojanje od prepreka ili zidova koji mu se nađu na putu jer kada se nalazi preblizu prepreke više pažnje mora posvetiti tome da prepreku izbegne nego dostizanju cilja. Prema tome, prepreke odbojno deluju na pešake koji se nalaze u blizini njih silom koja je opisana jednačinom
+Pešak teži da održava određeno rastojanje od prepreka ili zidova koji mu se nađu na putu, jer kada se nalazi preblizu prepreke više pažnje mora posvetiti tome da prepreku izbegne nego dostizanju cilja. Prema tome, prepreke odbojno deluju na pešake koji se nalaze u blizini njih silom koja je opisana jednačinom
 $$
 \mathbf{f_{z}}=C\ e^{-Dr^2}\mathbf{r_{norm}}
 $$
-gde su C i D konstante odabrane tako da model najbliže odgovara poznatim situacijama, a r rastojanje između pešaka dok vektor $\mathbf{r_{norm}}$ pokazuje da obojna sila deluje duž pravca koji spaja zid sa pešakom. 
+gde su C i D konstante odabrane tako da model najbliže odgovara poznatim situacijama, $\mathbf r$ rastojanje između pešaka, dok vektor $\mathbf{r_{norm}}$ pokazuje da obojna sila deluje duž pravca koji spaja zid sa pešakom. 
 
 \item Sile usled fizičkog kontakta
 
@@ -82,7 +85,7 @@ Kada dođe do fizičkog kontakta između pešaka, na njih deluju dve vrste sila.
 $$
 \mathbf{f_k}=k(d-r)\mathbf{r_{norm}}
 $$
-gde je k konstanta odabrana na način sličan kao za prethodno navedene sile, dok je d "poluprečnik pešaka", odnosno maksimalno rastojanje za koje deluju sile fizičkog kontakta, a r rastojanje između pešaka.
+gde je k konstanta odabrana na način sličan kao za prethodno navedene sile, dok je d ''poluprečnik pešaka'', odnosno maksimalno rastojanje za koje deluju sile fizičkog kontakta, a r rastojanje između pešaka.
 
 Druga sila koja deluje prilikom fizičkog kontakta između pešaka opisana je jednačinom
 $$
@@ -90,17 +93,17 @@ $$
 $$
 gde je K konstanta, d i r "poluprečnik pešaka", odnosno rastojanje između pešaka, dok vektor $\mathbf{\Delta V}$ pokazuje pravac delovanja i jednak je $\mathbf{\Delta V}=\mathbf{\Delta V_i}-\mathbf{\Delta V_j}$ gde su $\mathbf{\Delta V_i}$ i $\mathbf{\Delta V_j}$ vektori brzina pešaka \emph{i} i \emph{j}.
 \end{enumerate}
-Naci 4 sata je i to
+% Naci 4 sata je i to <- Komentar koji je umalo ostao kao tekst u radu :D
 
     \subsection{Polje preferiranog pravca kretanja}
     Do sada je bilo reči samo o silama koje potiču iz međusobne interakcije pešaka sa drugim pešacima i preprekama. Međutim, kada bi to bile jedine sile koje deluju na pešake, jasno je da bi simulirani događaji bili daleko od realne situacije, jer pešaci nemaju nikakvo znanje o tome kuda bi trebalo da idu. Zato, umesto da za svakog pešaka u svakom koraku računamo gde mu je najbliži cilj, uveli smo \emph{vektorsko polje preferiranog pravca}, koje u svakoj tački pokazuje kuda bi pešak trebao da se kreće da što pre stigne do najbližeg cilja. Nešto slično ovome se javljalo u radovima koji opisuju simuliranje pešaka pomoću dvodimenzionalnih celularnih automata (na primer, \citep{Burstedde2001}), ali ovaj rad je prvi pokušaj kombinovanja takvog polja sa modelom socijalnih sila. Konkretno reč je zapravo o dva polja, statičkom i dinamičkom.
     \begin{description}
-        \item[Statičko polje] je konstantno tokom celog izvršavanja simulacije, i u svakoj tački pokazuje u smeru najbližeg cilja.
+        \item[Statičko polje] je konstantno tokom celog izvršavanja simulacije i u svakoj tački pokazuje u smeru najbližeg cilja.
         \item[Dinamičko polje] predstavljaja to što će se pešak kretati tamo kuda se kreću okolni pešaci. Pokazuje u smeru vektorskog zbira brzina okolnih pešaka (onih koji se nalaze unutar neke kružnice unapred definisanog poluprečnika)
     \end{description}
     U ostatku ovog dela ćemo opisati kako izračunati dinamičko polje i predstaviti ga u obliku pogodnom za korišćenje u ostatku simulacije. 
     
-    Primetimo da je dovoljno izračunati polje u konačno mnogo (dovoljno gusto raspoređenih) tačaka, i interpolirati njegovu vrednost u ostalim tačkama. Ukoliko su tačke - čvorovi raspoređeni u kvadratnu mrežu, vrednost polja u tački $\mathbf r = (x,y)$ možemo interpolirati na sledeći način:
+    Primetimo da je dovoljno izračunati polje u konačno mnogo (dovoljno gusto raspoređenih) tačaka i interpolirati njegovu vrednost u ostalim tačkama. Ukoliko su tačke - čvorovi raspoređeni u kvadratnu mrežu, vrednost polja u tački $\mathbf r = (x,y)$ možemo interpolirati na sledeći način:
     
     $$
     	\mathbf f_\text{static} (\mathbf r) = \sum_{\text{postoji čvor na poziciji } \mathbf v} e^{-|v-r|^2} \mathbf f_\text{static} (\mathbf v)
@@ -137,9 +140,9 @@ Najprimetniji fenomen koji se javlja u paničnim situacijama je stvaranje uskih 
 \label{fig:guzva}
 \end{figure}
 
-Ukoliko se u nekom hodniku nalazi proširenje, kao na slici \ref{fig:guzva} i preferirana brzina pešaka je dovoljno velika umesto očekivanog rasterećenja i ubrzavanja izlaska pešaka iz prostorije dolazi do stvaranja uskog grla. Ovaj fenomen se može objasniti time što na početku proširnja pešaci pokušavaju da prestignu jedni druge i tako se udaljavaju od glavnog toka. Kada na kraju proširenja pešaći ponovo pokušavaju da uđu u glavni tok dolazi do stvaranja uskog grla.
+Ukoliko se u nekom hodniku nalazi proširenje, kao na slici \ref{fig:guzva} i preferirana brzina pešaka je dovoljno velika, umesto očekivanog rasterećenja i ubrzavanja izlaska pešaka iz prostorije dolazi do stvaranja uskog grla. Ovaj fenomen se može objasniti time što na početku proširnja pešaci pokušavaju da prestignu jedni druge i tako se udaljavaju od glavnog toka. Kada na kraju proširenja pešaći ponovo pokušavaju da uđu u glavni tok dolazi do stvaranja uskog grla.
 
-\item Evkuacija ljudi u malim grupama
+\item Evakuacija ljudi u malim grupama
 
 \begin{figure}
 \centering
@@ -149,12 +152,12 @@ Ukoliko se u nekom hodniku nalazi proširenje, kao na slici \ref{fig:guzva} i pr
 \end{figure}
 
 
-Pri visokim preferiranim brzinama pešaka, njihov izlazak iz prostorije postaje neravnomeran, odnosno pešaci napuštaju prostoriju u izdvojenim malim grupama. Takođe, tada se na izlazu iz prostorije javlja začepljenje u obliku luka (takvo začepljenje je obeleženo na slici \ref{fig:grupa}). Do formiranja začepljenja u obliku luka na izlazu dolazi usled međusobnog guranja pešaka i sile kojom deluju jedni na druge pri fizičkom kontaktu. Do izlaska male grupe pešaka iz prostorije dolazi pri "rušenju" luka na izlazu. Primećeno je na stvaranje lučnih začepljenja znatno veći uticaj ima širina izlaza nego preferirana brzina pešaka.
+Pri visokim preferiranim brzinama pešaka, njihov izlazak iz prostorije postaje neravnomeran, odnosno pešaci napuštaju prostoriju u izdvojenim malim grupama. Takođe, tada se na izlazu iz prostorije javlja začepljenje u obliku luka (takvo začepljenje je obeleženo na slici \ref{fig:grupa}). Do formiranja začepljenja u obliku luka na izlazu dolazi usled međusobnog guranja pešaka i sile kojom deluju jedni na druge pri fizičkom kontaktu. Do izlaska male grupe pešaka iz prostorije dolazi pri "rušenju" luka na izlazu. Primećeno je da na stvaranje lučnih začepljenja znatno veći uticaj ima širina izlaza nego preferirana brzina pešaka.
 
 \item Zanemarivanje slobodnih izlaza
 
 %treba napraviti sliku za ovo
-Kada je znanje pešaka o okolini u kojoj se nalaze malo (npr. kada je prostorija koju treba da napuste puna dima) uočeno je da se pešaci gomilaju na jednom izlazu, često zanemarivajući druge, slobodne izlae kroz koje bi napustili prostoriju za kraće vreme. Ovaj fenomen je u skladu sa zakljukom empirijskih istraživanja da su ljudima privlačnije one rute koji koristi veći broj drugih ljudi. Treba napomenuti da ni isključivo individualističko ponašanje u situacijama kada je znanje o okolini malo prema našem modelu ne daje rezultate jer pešak tada izlaz može naći samo slučajno, već je najefikasniji oblik ponašanja kombinacija individualističkog i kolektivnog ponašanja.
+Kada je znanje pešaka o okolini u kojoj se nalaze malo (npr. kada je prostorija koju treba da napuste puna dima) uočeno je da se pešaci gomilaju na jednom izlazu, često zanemarivajući druge, slobodne izlaze kroz koje bi napustili prostoriju za kraće vreme. Ovaj fenomen je u skladu sa zaključkom empirijskih istraživanja da su ljudima privlačnije one rute koji koristi veći broj drugih ljudi. Treba napomenuti da ni isključivo individualističko ponašanje u situacijama kada je znanje o okolini malo prema našem modelu ne daje rezultate jer pešak tada izlaz može naći samo slučajno, već je najefikasniji oblik ponašanja kombinacija individualističkog i kolektivnog ponašanja.
 
 %\item Formiranje traka pri prolasku kroz hodnik
 
@@ -166,19 +169,19 @@ Kada je znanje pešaka o okolini u kojoj se nalaze malo (npr. kada je prostorija
 
 Ranije smo spomenuli da se vreme evakuacije smanjuje ukoliko se na izlaz iz prostorije postavi nekakva prepreka, koja će da razbije i podeli bujicu pešaka. Ipak, nigde u literaturi nije specificirano koji je zapravo optimalan oblik te prepreke, već je korišćen oblik koji po autorovoj intuiciji daje najbolje rezultate. Ali, s obzirom na to da je sama ideja postavljanja prepreke donekle kontraintuitivna, glavni doprinos ovog rada je algoritamsko određivanje tog oblika.
 
-S obzirom na to da ne možemo da ispitamo svaki mogući oblik (ima ih beskonačno mnogo), moramo se zadovoljiti približnim rešavanjem datog problema. Genetski algoritmi su jedna od klasa algoritama pogodnih baš za tu svrhu - optimizaciju neke \emph{fitness funkcije} (vremena izlaska) na nekom domenu, tzv \emph{prostoru pretraživanja} (u našem slučaju, skupu svih mogućih poligona u ravni).
+S obzirom na to da ne možemo da ispitamo svaki mogući oblik (ima ih beskonačno mnogo), moramo se zadovoljiti približnim rešavanjem datog problema. Genetski algoritmi su jedna od klasa algoritama pogodnih baš za tu svrhu - optimizaciju neke \emph{fitness funkcije} (vremena izlaska) na nekom domenu, tzv. \emph{prostoru pretraživanja} (u našem slučaju, skupu svih mogućih poligona u ravni).
 
 Tok algoritma je sledeći:
 \begin{enumerate}
-\item Na slučajan način se generiše početni skup rešenja (\emph{jedinki}, na terminologiji genetskih algoritama) - poligona u ravni
+\item Na slučajan način se generiše početni skup rešenja (\emph{jedinki}, u terminologiji genetskih algoritama) - poligona u ravni.
 \item Za svaku jedinku se pokrene simulacija sa tim poligonom kao preprekom na izlazu. Fitness te jedinke je recipročna vrednost ukupnog simuliranog vremena potrebnog za evakuaciju svih pešaka.
-\item Sve jedinke (\emph{populacija}) se sortiraju prema fitness-u i "loše" jedinke sa malim fitness-om (prevelikim ukupnim vremenom izlask) se izbacuji iz populacije. Ovaj korak se u literaturi naziva \emph{selekcija}.
+\item Sve jedinke (\emph{populacija}) se sortiraju prema fitness-u i ''loše'' jedinke sa malim fitness-om (prevelikim ukupnim vremenom izlaska) se izbacuju iz populacije. Ovaj korak se u literaturi naziva \emph{selekcija}.
 \item Jedinke koje su opstale, učestvuju u procesu \emph{ukrštanja}: iz populacije se biraju parovi jedinki koje će se ukrstiti i dati novu jedinku - \emph{potomak}, nastalu kombinovanjem poligona svoja dva \emph{roditelja}. Verovatnoća da neka jedinka bude odabrana je srazmerna njenom fitness-u.
-\item Konačno, jedan deo jedinki u populaciji se dobija \emph{mutacijom} slučajno odabrane jedinke iz prethodne \emph{generacije}. Tako se u populaciju unosi mala količina raznovrsnosti, koja pomaže algoritmu da se ne zaustavi u nekom lokalnom optimumu.
-\item Koraci 2 - 5 se ponavljaju dok populacija ne konvergira ili se izračuna određeni unapred zadati broj generacija
+\item Konačno, jedan deo novih jedinki u populaciji se dobija \emph{mutacijom} slučajno odabrane jedinke iz prethodne \emph{generacije}. Tako se u populaciju unosi mala količina raznovrsnosti, koja pomaže algoritmu da se ne zaustavi u nekom lokalnom optimumu.
+\item Koraci 2 - 5 se ponavljaju dok populacija ne konvergira ili se izračuna određeni unapred zadati broj generacija.
 \end{enumerate}
 
-Ovaj postupak je u velikoj meri tačan i za sve ostale genetske algoritme, i ostavlja mnogo prostora za slobodnu interpretaciju. Zato ćemo u sledećem delu dati konkretnu reprezentaciju jedne jedinke, kao i opise korišćenih genetskih operatora (selekcije, ukrštanja i mutacije). U radu su korišćena dva različita načina za predstavljanje prepreka: polarni $n$-tougao i kvadratna rešetka.
+Goreopisani postupak je zajednički za sve genetske algoritme, i potrebno je definisati konkretnu reprezentaciju jedinki, kao i specificirati korišćene genetske operatore (selekcije, ukrštanja i mutacije) - to je urađeno narednom delu. U radu su korišćena dva različita načina za predstavljanje prepreka: polarni $n$-tougao i kvadratna rešetka.
 
 \subsection{Genetski operatori - $n$-tougao}
 
@@ -203,7 +206,7 @@ Pri tome je $r^a_i = r^a_{i-n}$, za $i\geq n$.
 
 \subsection{Genetski operatori - rešetka}
 
-Za slučaj da se optimalno rešenje ne može predstaviti u gorenavedenom obliku, implementirali smo i alternativno predstavljanje prepreke, kao kvadratne rešetke $n\times n$ fiksiranih dimenzija (u smislu dužine i širine u simuliranom svetu), koja ima neka prohodna i neka neprohodna polja. Jedinka je predstavljena kvadratnom matricom $(b_{ij})$, gde je
+Za slučaj da se optimalno rešenje ne može predstaviti u gorenavedenom obliku, implementirali smo i alternativno predstavljanjeu reprezentaciju prepreke, kao kvadratne rešetke $n\times n$ fiksiranih dimenzija (u smislu dužine i širine u simuliranom svetu), koja ima neka prohodna i neka neprohodna polja. Ovaj pristup omogućava predstavljanje nekih prepreka koje se nisu mogle predstaviti sa jednim prostim poligonom, npr. dva odvojena stuba. Jedinka je predstavljena kvadratnom matricom $(b_{ij})$, gde je
 $$
 b_{ij} = 
 \begin{cases}
@@ -224,7 +227,7 @@ b_{ij} =
 \end{cases},
 $$
 pri čemu su $f_a$ i $f_b$ fitness funkcije prve i druge jedinke, redom. Primetimo da ako je $ b^a_{ij} = b^b_{ij}$, tada će biti i $b_{ij} = b^a_{ij} = b^b_{ij}$.
-\item[Mutacija]: sa malom verovatnoćom, neko od neprohodnih polja na ivici prepreke postaje prohodno.
+\item[Mutacija]: sa malom verovatnoćom, neko od neprohodnih polja na ivici prepreke postaje prohodno. Razlog za baš ovakav izbor operatora mutacije je to što je početna populacija sastavljena od relativno gustih matrica (u proseku je $70\%$ polja neprohodno), i što izbacivanje unutrašnjeg polja nema nikakav efekat na efektivni oblik prepreke (jer pešaci ne mogu ni da dođu do takvih polja).
 \end{description}
 
 \section{Rezultati i diskusija}
@@ -233,11 +236,12 @@ Dobijeni rezultati se mogu podeliti u dve kategorije, kvalitativnu i kvantitativ
 
 Sa kvalitativne strane, rezultati se ponovo dele na dve grupe: oni dobijeni iz pojedinačne simulacije pokrenute za neke parametre interesantne po mišljenju autora, kao i oni dobijeni pokretanjem genetskog algoritam za optimizaciju pešačkih zona.
 
-Iz  prve grupe su reprezentativni grafici zavisnosti evakuisanih pešaka od vremena, sa kojih se mogu uočiti fenomeni poput napuštanja prostorije u mailm grupama. Takođe pokretanjem pojedinačne simulacije je potvrđena i hipoteza da prisustvo prepreke na izlazu smanjuje vreme izlaska iz prostorije.
+Iz  prve grupe su reprezentativni grafici zavisnosti evakuisanih pešaka od vremena, sa kojih se mogu uočiti fenomeni poput napuštanja prostorije u malim grupama. Takođe pokretanjem pojedinačne simulacije je potvrđena i hipoteza da prisustvo prepreke na izlazu smanjuje vreme izlaska iz prostorije.
 
 \begin{figure}
 \centering
 \includegraphics[scale=.6]{Vreme.png}
+\caption{Zavisnost broja pešaka koji su napustili prostoriju od proteklog vremena}
 \end{figure}
 
 Daleko su interesantniji rezutati dobijeni genetskim algoritmom, iz kojih smo videli da genetski algoritam konvergira, i da može da se primeni na dati problem. Predstavljamo rezultate genetskog algoritma za obe reprezentacije jedinki. Ukoliko drugačije nije naglašeno, genetski algoritam se izvršavao kroz 50 generacija, sa 20 jedinki.
@@ -245,7 +249,7 @@ Daleko su interesantniji rezutati dobijeni genetskim algoritmom, iz kojih smo vi
 \begin{figure}
 \centering
 \includegraphics{prostorija}
-\caption{Prostorija odakle se evakuišu pešaci. Njihove početne pozicije su unutar zelene regije, a crvena tačka na izlazu predstavlja njehov cilj, ka kome se kreću. Mala osenčena regija pred izlazom predstavlja prostor gde će se nalaziti prepreka}
+\caption{Prostorija odakle se evakuišu pešaci. Njihove početne pozicije su unutar zelene regije, a crvena tačka na izlazu predstavlja njihov cilj, ka kome se kreću. Mala osenčena regija pred izlazom predstavlja prostor gde će se nalaziti prepreka}
 \label{fig:prostorija1}
 \end{figure}
 
@@ -256,32 +260,32 @@ Za scenario sa slike \ref{fig:prostorija1}, pešacima je bez prepreke potrebno 6
 \begin{figure}
 \centering
 \includegraphics[scale=.6]{polygon-plot}
+\caption{Evolucija vremena izlaska iz prostorije kroz generacije za prepreku u obliku poligona}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics{polygon2}
-\caption{Oblik dobijen genetskim algoritmom}
+\caption{Oblik dobijen genetskim algoritmom, za prepreku u obliku poligona}
 \label{fig:polygon2}
 \end{figure}
-
-Iako ne možemo jasno razaznati koji je "pravilni" geometrijski oblik aproksimiran ovim poligonom, primetimo da je poboljšanje u ovom slučaju $23\%$.
+Iako početku istraživanja je pretpostavljeno da će algoritam konvergirati ka nekom ''pravilnom'' geometrijskom obliku (zbog simetrije prostorije i ravnomernog rasporeda pešaka), taj oblik se ne može razaznati (slika \ref{fig:polygon2}). Bez obzira na to, primetimo da je poboljšanje u ovom slučaju $23\%$.
 
 \subsection*{Kvadratna rešetka} 
 
 \begin{figure}
 \centering
 \includegraphics[scale=.6]{Grid-plot}
+\caption{Evolucija vremena izlaska iz prostorije kroz generacije za prepreku u obliku rešetke}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics{grid1}
-\caption{Oblik dobijen genetskim algoritmom}
+\caption{Oblik dobijen genetskim algoritmom, za prepreku u obliku rešetke}
 \label{fig:grid1}
 \end{figure}
-
-U slučaju kvadratne rešetke dobijamo još bolje rešenje nego u slučaju polarnog poligona (431 naspram 503), sa ukupnim poboljšanjem od $34\%$.
+U slučaju (slika \ref{fig:grid1}) kvadratne rešetke dobijamo još bolje rešenje nego u slučaju polarnog poligona (431 naspram 503 jedinice za kompletnu evakuaciju), sa ukupnim poboljšanjem od $34\%$.
 
 Genetski algoritam je pokretan sa različitim početnim parametrima generatora slučajnih brojeva, ali te izmene nisu dale značajne promene (svega par vremenskih jedinica) u konačnom rezultatu.
 
