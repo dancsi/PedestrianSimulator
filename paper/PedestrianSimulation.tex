@@ -65,33 +65,33 @@ Tokom izučavanja ljudskog ponašanja u paničnim situacijama predloženo je da 
 
 Na ponašanje određenog pešaka utiču ostali pešaci. Svaki pešak ima svoju "privatnu sferu", odnosno oseća se nelagodno kada mu drugi pešak priđe preblizu. Ovo rezultira odbojnom silom između pešaka. Ta sila opisana je izrazom
 $$
-\mathbf{f_{p}}=\mathrm{A}\ \alpha\ e^{-Br^2}\mathbf{r_{norm}}
+\mathbf{f_{p}}=\mathrm{A}\ \alpha\ e^{-B|\mathbf r|^2}\mathbf{r_{norm}}
 $$
 
-gde su A i B konstante odabrane tako da model najpribližnije opisuje već poznate situacije, $\mathbf r$ rastojanje između pešaka, dok vektor $\mathbf{r_{norm}}$ pokazuje da je pravac delovanja sile pravac koji spaja pešake. Koeficijent $\alpha$ je jednak 1 ukoliko je ugao između pravca kretanja i pravca koji spaja pešake manji od 100\degree. U protivnom je jednak 0,5.
+gde su A i B konstante odabrane tako da model najpribližnije opisuje već poznate situacije, $|\mathbf r|$ rastojanje između pešaka, dok vektor $\mathbf{r_{norm}}$ pokazuje da je pravac delovanja sile pravac koji spaja pešake. Koeficijent $\alpha$ je jednak 1 ukoliko je ugao između pravca kretanja i pravca koji spaja pešake manji od 100\degree. U protivnom je jednak 0,5.
 
 
 \item Odbojne sile prepreka
 
 Pešak teži da održava određeno rastojanje od prepreka ili zidova koji mu se nađu na putu, jer kada se nalazi preblizu prepreke više pažnje mora posvetiti tome da prepreku izbegne nego dostizanju cilja. Prema tome, prepreke odbojno deluju na pešake koji se nalaze u blizini njih silom koja je opisana jednačinom
 $$
-\mathbf{f_{z}}=C\ e^{-Dr^2}\mathbf{r_{norm}}
+\mathbf{f_{z}}=C\ e^{-D|\mathbf r|^2}\mathbf{r_{norm}}
 $$
-gde su C i D konstante odabrane tako da model najbliže odgovara poznatim situacijama, $\mathbf r$ rastojanje između pešaka, dok vektor $\mathbf{r_{norm}}$ pokazuje da obojna sila deluje duž pravca koji spaja zid sa pešakom. 
+gde su $C$ i $D$ konstante odabrane tako da model najbliže odgovara poznatim situacijama, $|\mathbf r|$ rastojanje između pešaka, dok vektor $\mathbf{r_{norm}}$ pokazuje da obojna sila deluje duž pravca koji spaja zid sa pešakom. 
 
 \item Sile usled fizičkog kontakta
 
 Kada dođe do fizičkog kontakta između pešaka, na njih deluju dve vrste sila. Prva sila deluje duž pravca koji spaja dva pešaka i opisana je jednačinom
 $$
-\mathbf{f_k}=k(d-r)\mathbf{r_{norm}}
+\mathbf{f_k}=k(d-|\mathbf r|)\mathbf{r_{norm}}
 $$
-gde je k konstanta odabrana na način sličan kao za prethodno navedene sile, dok je d ''poluprečnik pešaka'', odnosno maksimalno rastojanje za koje deluju sile fizičkog kontakta, a r rastojanje između pešaka.
+gde je $k$ konstanta odabrana na način sličan kao za prethodno navedene sile, dok je $d$ ''poluprečnik pešaka'', odnosno maksimalno rastojanje za koje deluju sile fizičkog kontakta, a $|\mathbf r|$ rastojanje između pešaka.
 
 Druga sila koja deluje prilikom fizičkog kontakta između pešaka opisana je jednačinom
 $$
-\mathbf{f_t}=K(d-r)\mathbf{\Delta V}
+\mathbf{f_t}=K(d-|\mathbf r|)\mathbf{\Delta v}
 $$
-gde je K konstanta, d i r "poluprečnik pešaka", odnosno rastojanje između pešaka, dok vektor $\mathbf{\Delta V}$ pokazuje pravac delovanja i jednak je $\mathbf{\Delta V}=\mathbf{\Delta V_i}-\mathbf{\Delta V_j}$ gde su $\mathbf{\Delta V_i}$ i $\mathbf{\Delta V_j}$ vektori brzina pešaka \emph{i} i \emph{j}.
+gde je $K$ konstanta, $d$ i $|\mathbf r|$ ''poluprečnik pešaka'', odnosno rastojanje između pešaka, dok vektor $\mathbf{\Delta v}$ pokazuje pravac delovanja i jednak je $\mathbf{\Delta v}=\mathbf{v_i}-\mathbf{v_j}$ gde su $\mathbf{v_i}$ i $\mathbf{v_j}$ vektori brzina pešaka $i$ i $j$.
 \end{enumerate}
 % Naci 4 sata je i to <- Komentar koji je umalo ostao kao tekst u radu :D
 
@@ -101,15 +101,22 @@ gde je K konstanta, d i r "poluprečnik pešaka", odnosno rastojanje između pe�
         \item[Statičko polje] je konstantno tokom celog izvršavanja simulacije i u svakoj tački pokazuje u smeru najbližeg cilja.
         \item[Dinamičko polje] predstavljaja to što će se pešak kretati tamo kuda se kreću okolni pešaci. Pokazuje u smeru vektorskog zbira brzina okolnih pešaka (onih koji se nalaze unutar neke kružnice unapred definisanog poluprečnika)
     \end{description}
-    U ostatku ovog dela ćemo opisati kako izračunati dinamičko polje i predstaviti ga u obliku pogodnom za korišćenje u ostatku simulacije. 
+    U ostatku ovog dela ćemo opisati kako izračunati dinamičko i statičko polje i predstaviti ga u obliku pogodnom za korišćenje u ostatku simulacije. 
     
-    Primetimo da je dovoljno izračunati polje u konačno mnogo (dovoljno gusto raspoređenih) tačaka i interpolirati njegovu vrednost u ostalim tačkama. Ukoliko su tačke - čvorovi raspoređeni u kvadratnu mrežu, vrednost polja u tački $\mathbf r = (x,y)$ možemo interpolirati na sledeći način:
+    Primetimo da je dovoljno izračunati polje u konačno mnogo (dovoljno gusto raspoređenih) tačaka i interpolirati njegovu vrednost u ostalim tačkama. Ukoliko su tačke - čvorovi raspoređeni u kvadratnu mrežu, vrednost polja u tački $\mathbf p = (x,y)$ možemo interpolirati na sledeći način:
     
     $$
-    	\mathbf f_\text{static} (\mathbf r) = \sum_{\text{postoji čvor na poziciji } \mathbf v} e^{-|v-r|^2} \mathbf f_\text{static} (\mathbf v)
+    	\mathbf f_\text{static} (\mathbf p) = \sum_{\text{postoji čvor na poziciji } \mathbf q} e^{-|p-q|^2} \mathbf f_\text{static} (\mathbf q)
     $$
 	
-	Takođe primetimo da će sabirci $e^{-|v-r|^2} f_\text{static} (\mathbf v)$ biti zanemarljivo mali za sve osim za najbliže čvorove $\mathbf v$, tako da za potrebe simulacije aproksimiramo $f_\text{static} (\mathbf r)$ sa 4 čvora - temena kvadrata najbliža tački $\mathbf r$. Ukoliko je polje u računaru predstavljeno matricom, ta 4 čvora se mogu odrediti u konstantnom vremenu.
+	Takođe primetimo da će sabirci $e^{-|p-q|^2} f_\text{static} (\mathbf q)$ biti zanemarljivo mali za sve osim za najbliže čvorove $\mathbf q$, tako da za potrebe simulacije aproksimiramo $f_\text{static} (\mathbf r)$ sa 4 čvora - temena kvadrata najbliža tački $\mathbf p$. Ukoliko je polje u računaru predstavljeno matricom, ta 4 čvora se mogu odrediti u konstantnom vremenu. Dakle, pojednostavljene formule za računanje polja izgledaju ovako:
+	
+	$$
+		\mathbf f_\text{static} (\mathbf p) = \sum_{\text{najbliža 4 čvora, na pozicijama } \mathbf q} e^{-|p-q|^2} \mathbf f_\text{static} (\mathbf q)
+	$$
+	$$
+		\mathbf f_\text{dynamic} (\mathbf p) = \sum_{\text{pešak na poziciji } \mathbf q, |\mathbf p-\mathbf q| \leq R} e^{-|p-q|^2} \mathbf{{v_q}_{norm}}
+	$$	
 	
 	Sada možemo proširiti naš model sa ove dve sile, tako da je
 	$$
@@ -133,7 +140,7 @@ Najprimetniji fenomen koji se javlja u paničnim situacijama je stvaranje uskih 
 
 \item Stvaranje uskog grla na proširenjima
 
-\begin{figure}[hb]
+\begin{figure}[h]
 \centering
 \includegraphics{Guzva}
 \caption{Primer prosirenja na kom se stvorilo usko grlo}
