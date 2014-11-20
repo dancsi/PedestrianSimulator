@@ -26,7 +26,8 @@
 \author{
 Daniel Silađi\\
 \and
-Ognjen Stanisavljević
+Ognjen Stanisavljević \\
+Mentor: Miroslav Bogdanović
 }
 
 \date{} % keep this empty
@@ -213,7 +214,7 @@ Pri tome je $r^a_i = r^a_{i-n}$, za $i\geq n$.
 
 \subsection{Genetski operatori - rešetka}
 
-Za slučaj da se optimalno rešenje ne može predstaviti u gorenavedenom obliku, implementirali smo i alternativno predstavljanjeu reprezentaciju prepreke, kao kvadratne rešetke $n\times n$ fiksiranih dimenzija (u smislu dužine i širine u simuliranom svetu), koja ima neka prohodna i neka neprohodna polja. Ovaj pristup omogućava predstavljanje nekih prepreka koje se nisu mogle predstaviti sa jednim prostim poligonom, npr. dva odvojena stuba. Jedinka je predstavljena kvadratnom matricom $(b_{ij})$, gde je
+Za slučaj da se optimalno rešenje ne može predstaviti u gorenavedenom obliku, implementirali smo i alternativnu reprezentaciju prepreke, kao kvadratne rešetke $n\times n$ fiksiranih dimenzija (u smislu dužine i širine u simuliranom svetu), koja ima neka prohodna i neka neprohodna polja. Ovaj pristup omogućava predstavljanje nekih prepreka koje se nisu mogle predstaviti sa jednim prostim poligonom, npr. dva odvojena stuba. Jedinka je predstavljena kvadratnom matricom $(b_{ij})$, gde je
 $$
 b_{ij} = 
 \begin{cases}
@@ -276,7 +277,7 @@ Za scenario sa slike \ref{fig:prostorija1}, pešacima je bez prepreke potrebno 6
 \caption{Oblik dobijen genetskim algoritmom, za prepreku u obliku poligona}
 \label{fig:polygon2}
 \end{figure}
-Iako početku istraživanja je pretpostavljeno da će algoritam konvergirati ka nekom ''pravilnom'' geometrijskom obliku (zbog simetrije prostorije i ravnomernog rasporeda pešaka), taj oblik se ne može razaznati (slika \ref{fig:polygon2}). Bez obzira na to, primetimo da je poboljšanje u ovom slučaju $23\%$.
+Iako je u početku istraživanja pretpostavljeno da će algoritam konvergirati ka nekom ''pravilnom'' geometrijskom obliku (zbog simetrije prostorije i ravnomernog rasporeda pešaka), taj oblik se ne može razaznati (slika \ref{fig:polygon2}). Bez obzira na to, primetimo da je poboljšanje u ovom slučaju $23\%$.
 
 \subsection*{Kvadratna rešetka} 
 
@@ -305,6 +306,10 @@ Još jedna mogućnost jeste implementacija dvoslojnog genetskog algoritma, u koj
 \section{Zaključak}
 
 U radu je prestavljen proširen model socijalnih sila, i genetski algoritam za optimizaciju pešačkih zona. Nakon proveravanja verodostojnosti simulacije ispitivanjem javljanja nekih uočenih sociološkoh fenomena, genetskim algoritmom je utvrđen optimalan izgled prepreke koju je potrebno postaviti na izlaz iz neke prostorije, da bi se minimizovalo vreme evakuacije svih pešaka.
+
+\section*{Zahvalnost}
+Autori žele da izraze zahvalnost mentoru Miroslavu Bogdanoviću na pomoći i usmeravanju ovog projekta u smislenu celinu predstavljenu u ovom radu. Takođe, hvala i saradnicima Aleksandru Bukvi i Mariu Cekiću na korisnim idejama i savetima, kao i rukovodiocu seminara fizike Jeleni Pajović na podšci tokom celog vremena izrade ovog projekta. 
+
 
 \bibliographystyle{apalike}  
 \begin{scriptsize}
