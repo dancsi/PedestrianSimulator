@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="07_Prepreka_poligon.svg"
+   width="17.972677"
+   height="28.992922">
+  <metadata
+     id="metadata44">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs42" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     id="namedview40"
+     showgrid="false"
+     inkscape:zoom="6.675088"
+     inkscape:cx="7.0209889"
+     inkscape:cy="5.366805"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g4"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <g
+     transform="matrix(4,0,0,4,-8.3968819,-3.9616283)"
+     id="g4">
+    <line
+       x1="6.44239"
+       y1="1.1404071"
+       x2="6.44239"
+       y2="3.34481"
+       id="line12"
+       style="stroke:#000000;stroke-width:0.30000001;stroke-linecap:square" />
+    <line
+       x1="6.44239"
+       y1="8.0886374"
+       x2="6.44239"
+       y2="6.0914931"
+       id="line14"
+       style="stroke:#000000;stroke-width:0.30000001;stroke-linecap:square" />
+    <line
+       x1="3.44239"
+       y1="5.2542396"
+       x2="4.0410571"
+       y2="5.7562213"
+       id="line16"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="4.0410571"
+       y1="5.7562213"
+       x2="3.8921657"
+       y2="4.9789805"
+       id="line18"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="3.8921657"
+       y1="4.9789805"
+       x2="4.2742"
+       y2="4.7193027"
+       id="line20"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="4.2742"
+       y1="4.7193027"
+       x2="4.4797816"
+       y2="4.1203628"
+       id="line22"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="4.4797816"
+       y1="4.1203628"
+       x2="3.5223193"
+       y2="4.5808616"
+       id="line24"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="3.5223193"
+       y1="4.5808616"
+       x2="3.44239"
+       y2="4.6213737"
+       id="line26"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="3.44239"
+       y1="4.6213737"
+       x2="3.165935"
+       y2="4.2404666"
+       id="line28"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="3.165935"
+       y1="4.2404666"
+       x2="3.1555133"
+       y2="4.5536742"
+       id="line30"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="3.1555133"
+       y1="4.5536742"
+       x2="2.2150493"
+       y2="4.7193027"
+       id="line32"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="2.2150493"
+       y1="4.7193027"
+       x2="3.3167338"
+       y2="4.7918487"
+       id="line34"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="3.3167338"
+       y1="4.7918487"
+       x2="2.9301219"
+       y2="5.6065803"
+       id="line36"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+    <line
+       x1="2.9301219"
+       y1="5.6065803"
+       x2="3.44239"
+       y2="5.2542396"
+       id="line38"
+       style="stroke:#000000;stroke-width:0.2;stroke-linecap:round" />
+  </g>
+</svg>

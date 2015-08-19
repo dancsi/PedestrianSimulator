@@ -1,0 +1,294 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      9914,        285]
+NotebookOptionsPosition[      9078,        251]
+NotebookOutlinePosition[      9421,        266]
+CellTagsIndexPosition[      9378,        263]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\<C:\\\\Users\\\\Dancsi\\\\petnica\\\\2014\\\\PedestrianSimulator\\\\\
+paper\\\\logs\>\"", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"HighResPlot", "[", "fname_String", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"data", "=", 
+       RowBox[{
+        RowBox[{"Import", "[", 
+         RowBox[{"fname", ",", " ", "\"\<Table\>\""}], "]"}], "//", 
+        "Flatten"}]}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"plot", " ", "=", 
+       RowBox[{"ListLinePlot", "[", 
+        RowBox[{"data", ",", " ", 
+         RowBox[{"Frame", "\[Rule]", "True"}], ",", " ", 
+         RowBox[{"FrameLabel", "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"\"\<Generacija\>\"", ",", " ", "\"\<Vreme izlaska\>\""}], 
+           "}"}]}], ",", " ", 
+         RowBox[{"Background", "\[Rule]", "None"}], ",", 
+         RowBox[{"AxesStyle", "\[Rule]", "White"}], ",", " ", 
+         RowBox[{"FrameStyle", "\[Rule]", "White"}], ",", 
+         RowBox[{"TicksStyle", "\[Rule]", "White"}], ",", " ", 
+         RowBox[{"PlotStyle", "\[Rule]", "White"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Export", "[", 
+       RowBox[{
+        RowBox[{"fname", "<>", "\"\<.eps\>\""}], ",", " ", "plot", ",", " ", 
+        "\"\<EPS\>\""}], "]"}]}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"HighResPlot", "[", "\"\<grid1.txt\>\"", 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"HighResPlot", "[", "\"\<polygon2.txt\>\"", "]"}]}], "Input",
+ CellChangeTimes->{{3.6257764130261073`*^9, 3.6257766105032744`*^9}, {
+   3.625776896538618*^9, 3.6257769229421763`*^9}, {3.6257770276999645`*^9, 
+   3.6257770541345725`*^9}, {3.625777166692706*^9, 3.6257772855000324`*^9}, {
+   3.62577736035928*^9, 3.625777361640373*^9}, {3.625777412904792*^9, 
+   3.6257774423257318`*^9}, {3.62577748012386*^9, 3.6257775079199915`*^9}, {
+   3.6257775404542727`*^9, 3.625777546999977*^9}, {3.6257775950014486`*^9, 
+   3.6257775977554445`*^9}, {3.6257776494562273`*^9, 
+   3.6257776545709534`*^9}, {3.6257780916416664`*^9, 3.625778097027822*^9}, {
+   3.62577944452052*^9, 3.6257794501693106`*^9}, {3.6257796032833743`*^9, 
+   3.625779604423933*^9}, 3.625779662050929*^9, {3.6257796953060646`*^9, 
+   3.6257797008165097`*^9}, {3.625779766346959*^9, 3.6257797726779537`*^9}, 
+   3.6257798732530003`*^9}],
+
+Cell[BoxData["\<\"grid1.txt.eps\"\>"], "Output",
+ CellChangeTimes->{
+  3.6257765950112963`*^9, 3.62577692632994*^9, 3.625777055277125*^9, 
+   3.625777175117581*^9, 3.6257772270367155`*^9, {3.6257774884922876`*^9, 
+   3.625777508548478*^9}, {3.625777543913148*^9, 3.625777547546818*^9}, 
+   3.6257776026984406`*^9, 3.6257776712341795`*^9, 3.625778100743472*^9, 
+   3.6257794539539013`*^9, 3.62577960989583*^9, 3.625779704237012*^9, 
+   3.625779776922287*^9, 3.6257798738780184`*^9}],
+
+Cell[BoxData["\<\"polygon2.txt.eps\"\>"], "Output",
+ CellChangeTimes->{
+  3.6257765950112963`*^9, 3.62577692632994*^9, 3.625777055277125*^9, 
+   3.625777175117581*^9, 3.6257772270367155`*^9, {3.6257774884922876`*^9, 
+   3.625777508548478*^9}, {3.625777543913148*^9, 3.625777547546818*^9}, 
+   3.6257776026984406`*^9, 3.6257776712341795`*^9, 3.625778100743472*^9, 
+   3.6257794539539013`*^9, 3.62577960989583*^9, 3.625779704237012*^9, 
+   3.625779776922287*^9, 3.625779873987392*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{"%30", ",", 
+   RowBox[{"AxesStyle", "\[Rule]", "White"}]}], "]"}]], "Input",
+ NumberMarks->False],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, {}, 
+    {RGBColor[0.368417, 0.506779, 0.709798], PointSize[0.016666666666666666`],
+      AbsoluteThickness[1.6], LineBox[CompressedData["
+1:eJxdyTkKwlAUheGDlWUKCwsLFRERkRjnMXHWTlyCYG2vFlmaS8oSHG6ekP/B
+4/Ddv3K5na85ScHnf9deEv7Gf0bpIco6D3twAS7CJVvPuQxX4RpchxtwE27Z
+vh6p27axs297cu7AAdyFe3AfHsBDeASP4Qk8hWfwHF7AIRxlHcNaosNa2fqu
+w1qjw9qgw9qiw9qhw9rbJve0wzqgwzr+/QbgZ1Ie
+      "]]}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->{True, True},
+  AxesLabel->{
+    FormBox["\"Generacija\"", TraditionalForm], 
+    FormBox["\"Vreme izlaska\"", TraditionalForm]},
+  AxesOrigin->{0, 429.99999999999994`},
+  AxesStyle->GrayLevel[1],
+  DisplayFunction->Identity,
+  Frame->{{False, False}, {False, False}},
+  FrameLabel->{{None, None}, {None, None}},
+  FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+  GridLines->{None, None},
+  GridLinesStyle->Directive[
+    GrayLevel[0.5, 0.4]],
+  Method->{},
+  PlotRange->{{0., 50.}, {431., 451.}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{
+     Scaled[0.02], 
+     Scaled[0.02]}, {
+     Scaled[0.05], 
+     Scaled[0.05]}},
+  Ticks->{Automatic, Automatic}]], "Output",
+ CellChangeTimes->{3.625777070838996*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{"%25", ",", 
+   RowBox[{"Background", "\[Rule]", "None"}]}], "]"}]], "Input",
+ NumberMarks->False],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, {}, 
+    {RGBColor[0.368417, 0.506779, 0.709798], PointSize[0.016666666666666666`],
+      AbsoluteThickness[1.6], LineBox[CompressedData["
+1:eJxdyTkKwlAUheGDlWUKCwsLFRERkRjnMXHWTlyCYG2vFlmaS8oSHG6ekP/B
+4/Ddv3K5na85ScHnf9deEv7Gf0bpIco6D3twAS7CJVvPuQxX4RpchxtwE27Z
+vh6p27axs297cu7AAdyFe3AfHsBDeASP4Qk8hWfwHF7AIRxlHcNaosNa2fqu
+w1qjw9qgw9qiw9qhw9rbJve0wzqgwzr+/QbgZ1Ie
+      "]]}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->{True, True},
+  AxesLabel->{
+    FormBox["\"Generacija\"", TraditionalForm], 
+    FormBox["\"Vreme izlaska\"", TraditionalForm]},
+  AxesOrigin->{0, 429.99999999999994`},
+  Background->None,
+  DisplayFunction->Identity,
+  Frame->{{False, False}, {False, False}},
+  FrameLabel->{{None, None}, {None, None}},
+  FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+  GridLines->{None, None},
+  GridLinesStyle->Directive[
+    GrayLevel[0.5, 0.4]],
+  Method->{},
+  PlotRange->{{0., 50.}, {431., 451.}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{
+     Scaled[0.02], 
+     Scaled[0.02]}, {
+     Scaled[0.05], 
+     Scaled[0.05]}},
+  Ticks->{Automatic, Automatic}]], "Output",
+ CellChangeTimes->{3.625777021942439*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+  "\"\<C:\\\\Users\\\\Dancsi\\\\petnica\\\\2014\\\\PedestrianSimulator\\\\\
+paper\\\\Grid1plot.pdf\>\"", ",", "%25", ",", "\"\<PDF\>\""}], "]"}]], "Input",
+ NumberMarks->False],
+
+Cell[BoxData["\<\"C:\\\\Users\\\\Dancsi\\\\petnica\\\\2014\\\\\
+PedestrianSimulator\\\\paper\\\\Grid1plot.pdf\"\>"], "Output",
+ CellChangeTimes->{3.625776985167588*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{"%21", ",", 
+   RowBox[{"AxesLabel", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"HoldForm", "[", "asd", "]"}], ",", 
+      RowBox[{"HoldForm", "[", "asd", "]"}]}], "}"}]}], ",", 
+   RowBox[{"PlotLabel", "\[Rule]", "None"}], ",", 
+   RowBox[{"LabelStyle", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"GrayLevel", "[", "0", "]"}], "}"}]}]}], "]"}]], "Input",
+ NumberMarks->False],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{}, {}, 
+    {RGBColor[0.368417, 0.506779, 0.709798], PointSize[0.016666666666666666`],
+      AbsoluteThickness[1.6], LineBox[CompressedData["
+1:eJxdyTkKwlAUheGDlWUKCwsLFRERkRjnMXHWTlyCYG2vFlmaS8oSHG6ekP/B
+4/Ddv3K5na85ScHnf9deEv7Gf0bpIco6D3twAS7CJVvPuQxX4RpchxtwE27Z
+vh6p27axs297cu7AAdyFe3AfHsBDeASP4Qk8hWfwHF7AIRxlHcNaosNa2fqu
+w1qjw9qgw9qiw9qhw9rbJve0wzqgwzr+/QbgZ1Ie
+      "]]}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->{True, True},
+  AxesLabel->{
+    FormBox[
+     TagBox["asd", HoldForm], TraditionalForm], 
+    FormBox[
+     TagBox["asd", HoldForm], TraditionalForm]},
+  AxesOrigin->{0, 429.99999999999994`},
+  DisplayFunction->Identity,
+  Frame->{{False, False}, {False, False}},
+  FrameLabel->{{None, None}, {None, None}},
+  FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+  GridLines->{None, None},
+  GridLinesStyle->Directive[
+    GrayLevel[0.5, 0.4]],
+  LabelStyle->{
+    GrayLevel[0]},
+  Method->{},
+  PlotLabel->None,
+  PlotRange->{{0., 50.}, {431., 451.}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{
+     Scaled[0.02], 
+     Scaled[0.02]}, {
+     Scaled[0.05], 
+     Scaled[0.05]}},
+  Ticks->{Automatic, Automatic}]], "Output",
+ CellChangeTimes->{3.6257768904702177`*^9}]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.625776476721402*^9, 3.6257764788858213`*^9}}]
+},
+WindowSize->{767, 601},
+WindowMargins->{{204, Automatic}, {-86, Automatic}},
+FrontEndVersion->"10.0 for Microsoft Windows (64-bit) (July 1, 2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 2426, 50, 192, "Input"],
+Cell[3009, 74, 481, 7, 31, "Output"],
+Cell[3493, 83, 482, 7, 88, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4012, 95, 145, 4, 31, "Input"],
+Cell[4160, 101, 1221, 32, 218, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5418, 138, 145, 4, 31, "Input"],
+Cell[5566, 144, 1214, 32, 218, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6817, 181, 226, 5, 72, "Input"],
+Cell[7046, 188, 168, 2, 31, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7251, 195, 438, 12, 31, "Input"],
+Cell[7692, 209, 1273, 36, 248, "Output"]
+}, Open  ]],
+Cell[8980, 248, 94, 1, 31, "Input"]
+}
+]
+*)
+
+(* End of internal cache information *)
