@@ -217,5 +217,16 @@ pip-log.txt
 *.filters
 log.txt
 
+#LaTeX
+*.aux
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+
 GA/
 test.ps1
+poster/
+presentation/out.mp4
+presentation/Grid.ai
+presentation/polarni.png
