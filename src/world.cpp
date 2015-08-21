@@ -191,8 +191,8 @@ namespace world
 
 	bool visible(vec_t a, vec_t b)
 	{
-		line_t sight_ray{ a, b };
-		return all_of(walls.begin(), walls.end(), [&sight_ray](line_t& wall) {return !intersects(sight_ray, wall); });
+		lined_t sight_ray(line_t{a, b});
+		return all_of(walls.begin(), walls.end(), [&sight_ray](line_t& wall) {return !intersects(sight_ray, lined_t(wall)); });
 	}
 
 	void point_grad_vec_to_prev_pos(pair_t p, scalar_field_t& dist_field, vec_field_t& dist_field_grad, matrix_t<vec_t>& prev_pos) //usmerava

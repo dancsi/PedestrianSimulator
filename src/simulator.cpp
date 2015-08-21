@@ -26,8 +26,8 @@ int main(int argc, char** argv)
 
 	auto start_time = chrono::high_resolution_clock::now();
 
-	//world::add_objective({ { 101.5, 20.1 }, 1 });
-	world::add_objective({ { 45, 20 }, 0 });
+	world::add_objective({ { 40.5, 20.1 }, 0 });
+	//world::add_objective({ { 59, 50 }, 1 });
 	atexit(world::destroy);
 
 
@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 		graphics::begin_frame();
 		world::draw();
 		graphics::end_frame();
+		//graphics::dump_frame();
 	}
 	auto end_time = chrono::high_resolution_clock::now();
 	chrono::duration<double> elapsed_time = end_time - start_time;

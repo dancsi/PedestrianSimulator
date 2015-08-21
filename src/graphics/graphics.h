@@ -21,6 +21,7 @@ namespace graphics
 	bool should_exit();
 	void begin_frame();
 	void end_frame();
+	void dump_frame();
 	void destroy();
 	void draw_ui_scale();
 	void draw_world_scale();

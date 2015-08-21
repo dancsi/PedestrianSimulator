@@ -226,7 +226,16 @@ log.txt
 
 GA/
 test.ps1
+
 poster/
 presentation/out.mp4
 presentation/Grid.ai
 presentation/polarni.png
+out.mp4
+logs/statistics.txt
+logs/statistics.txt
+*.aux
+*.bbl
+*.blg
+paper/PedestrianSimulation.out
+paper/PedestrianSimulation.synctex.gz
